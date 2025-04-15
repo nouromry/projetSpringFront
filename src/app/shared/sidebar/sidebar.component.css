@@ -1,0 +1,81 @@
+/* sidebar.component.css */
+.sidebar {
+    width: 250px;
+    background-color: #0d1e52;
+    color: white;
+    height: 100vh;
+    border-radius: 30px 0 0 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px 0;
+    box-sizing: border-box;
+}
+
+.sidebar .logo-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    padding: 0 20px; /* Added padding to prevent image touching edges */
+}
+
+.sidebar .logo-container .logo {
+    width: 100%; /* Changed to 100% of container */
+    max-width: 500px; /* Increased max-width */
+    height: auto; /* Maintain aspect ratio */
+    margin-top: 10px;
+}
+
+/* Rest of your existing CSS remains the same */
+.sidebar .nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar .nav-list li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 24px;
+    margin: 20px 0;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.sidebar .nav-list li i {
+    font-size: 18px;
+}
+
+.sidebar .nav-list li:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar .nav-list li.active {
+    background-color: white;
+    color: #0d1e52;
+    border-radius: 20px 0 0 20px;
+}
+
+.sidebar .logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 30px;
+}
+
+.sidebar .logout i {
+    font-size: 18px;
+}
+
+.sidebar .logout button {
+    background: none;
+    border: none;
+    color: #5ac8fa;
+    cursor: pointer;
+    font-weight: bold;
+    padding: 0;
+    font-size: 15px;
+}
