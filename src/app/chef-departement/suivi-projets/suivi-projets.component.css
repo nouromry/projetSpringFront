@@ -1,0 +1,351 @@
+/* src/app/chef-departement/suivi-projets/suivi-projets.component.css */
+.validation-container {
+  padding: 20px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header {
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 20px;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.filter-button {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border: 1px solid #ddd;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.filter-button .filter-icon {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  background-image: url('/angular.json');
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.filter-button .dropdown-icon {
+  margin-left: 8px;
+  width: 10px;
+  height: 10px;
+  background-image: url('/assets/dropdown-icon.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.dropdown-menu .dropdown-item {
+  padding: 8px 15px;
+  cursor: pointer;
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.filter-container:hover .dropdown-menu {
+  display: block;
+}
+
+.search-container {
+  position: relative;
+  flex-grow: 1;
+  margin: 0 20px;
+}
+
+.search-container .search-input {
+  width: 100%;
+  padding: 8px 15px 8px 35px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  outline: none;
+}
+
+.search-container .search-input::placeholder {
+  color: #aaa;
+}
+
+.search-container .search-icon {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  background-image: url('/assets/search-icon.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.profile-section {
+  display: flex;
+  align-items: center;
+}
+
+.profile-section .notification-icon {
+  position: relative;
+  margin-right: 15px;
+  width: 20px;
+  height: 20px;
+  
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.profile-section .notification-icon .notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 8px;
+  height: 8px;
+  background-color: #f00;
+  border-radius: 50%;
+}
+
+.profile-section .avatar-container {
+  margin-right: 10px;
+}
+
+.profile-section .avatar-container .avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  background-color: #ddd;
+}
+
+.profile-section .role-text {
+  font-size: 14px;
+  color: #666;
+}
+
+.tabs-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tabs-container .tab {
+  padding: 12px 20px;
+  font-size: 16px;
+  color: white;
+  background-color: #7EB6E4;
+  cursor: pointer;
+  border-radius: 8px;
+  text-align: center;
+  flex: 1;
+  max-width: 500px;
+}
+
+.tabs-container .tab.active {
+  background-color: #1a87e0;
+  font-weight: 600;
+}
+
+.projects-table, .sujets-list-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  overflow: hidden;
+}
+
+.projects-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.projects-table table th,
+.projects-table table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.projects-table table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+  color: #666;
+}
+
+.projects-table table tr:last-child td {
+  border-bottom: none;
+}
+
+.projects-table table .sujet-link {
+  color: #1a73e8;
+  text-decoration: none;
+}
+
+.projects-table table .sujet-link:hover {
+  text-decoration: underline;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.status-badge .status-icon {
+  margin-left: 5px;
+  width: 16px;
+  height: 16px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.status-badge .dropdown-icon {
+  margin-left: 5px;
+  width: 10px;
+  height: 10px;
+  background-image: url('/assets/dropdown-icon.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.status-valide {
+  background-color: #e6f4ea;
+  color: #1e8e3e;
+}
+
+.status-valide .status-icon {
+  background-image: url('/assets/check-icon.svg');
+}
+
+.status-attente {
+  background-color: #fef7e0;
+  color: #f9ab00;
+}
+
+.status-attente .status-icon {
+  background-image: url('/assets/clock-icon.svg');
+}
+
+.status-annulee {
+  background-color: #fce8e6;
+  color: #d93025;
+}
+
+.status-annulee .status-icon {
+  background-image: url('/assets/cancel-icon.svg');
+}
+.sujets-list-container {
+  margin-top: 20px;
+}
+
+.filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.filiere-filter {
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.filiere-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.meca-badge {
+  background-color: #e3f2fd;
+  color: #1976d2;
+}
+
+.gsi-badge {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+}
+
+.sujet-link {
+  color: #1976d2;
+  text-decoration: none;
+}
+
+.sujet-link:hover {
+  text-decoration: underline;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.status-valide {
+  background-color: #e8f5e9;
+  color: #388e3c;
+}
+/* Style pour l'en-tête du tableau */
+.projects-table thead th {
+  background-color: #7EB6E4; /* Bleu Angular par défaut */
+  color: white; /* Texte en blanc */
+  font-weight: bold; /* Texte en gras */
+  border: 1px solid #ddd;
+  padding: 12px 15px; /* Conserver le padding existant */
+}
+
+/* Style pour l'en-tête du tableau des sujets (si vous voulez la même apparence) */
+.sujets-table thead th {
+  background-color: #7EB6E4;
+  border: 1px solid #ddd;
+  color: white;
+  font-weight: bold;
+  padding: 12px 15px;
+}
+
+

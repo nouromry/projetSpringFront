@@ -1,1 +1,117 @@
-<p>suivi-projets works!</p>
+<div class="validation-container">
+  <div class="header">
+    <h1>Validation des projets</h1>
+    
+    <div class="actions-row">
+      <div class="filter-container" *ngIf="activeTab === 'validation'">
+        <button class="filter-button">
+          <i class="filter-icon"></i>
+          Filtrer par le statut
+          <i class="dropdown-icon"></i>
+        </button>
+        <div class="dropdown-menu">
+          <div class="dropdown-item" (click)="filterByStatus('tous')">Tous</div>
+          <div class="dropdown-item" (click)="filterByStatus('validé')">Validé</div>
+          <div class="dropdown-item" (click)="filterByStatus('en attente')">En attente</div>
+          <div class="dropdown-item" (click)="filterByStatus('annulée')">Annulée</div>
+        </div>
+      </div>
+      
+      <div class="search-container">
+        <input type="text" 
+               [placeholder]="activeTab === 'validation' ? 'rechercher le projet...' : 'rechercher un sujet...'" 
+               class="search-input"
+               [(ngModel)]="searchTerm"
+               (input)="activeTab === 'liste' ? filterSujets() : ''">
+        <i class="search-icon"></i>
+      </div>
+      
+      <div class="profile-section">
+        <div class="notification-icon">
+          <span class="notification-badge"></span>
+        </div>
+        
+        <div class="role-text">chef de departement</div>
+      </div>
+    </div>
+    
+    <div class="tabs-container">
+      <div class="tab" 
+           [class.active]="activeTab === 'validation'" 
+           (click)="switchTab('validation')">
+        Validation des sujets
+      </div>
+      <div class="tab" 
+           [class.active]="activeTab === 'liste'" 
+           (click)="switchTab('liste')">
+        Liste des sujets
+      </div>
+    </div>
+  </div>
+  
+  <!-- Onglet Validation des sujets -->
+  <div *ngIf="activeTab === 'validation'" class="projects-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Numéro de projet</th>
+          <th>Enseignant</th>
+          <th>Sujet</th>
+          <th>Date de depot</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let projet of filteredProjets">
+          <td>{{ projet.id }}</td>
+          <td>{{ projet.enseignant }}</td>
+          <td>
+            <a *ngIf="projet.sujet" href="#" class="sujet-link">{{ projet.sujet }}</a>
+            <span *ngIf="!projet.sujet">-</span>
+          </td>
+          <td>{{ projet.dateDepot }}</td>
+          <td>
+            <div class="status-badge" [ngClass]="getStatusClass(projet.statut)">
+              {{ projet.statut }}
+              <i class="status-icon" [ngClass]="{'check-icon': projet.statut === 'validé', 'clock-icon': projet.statut === 'en attente', 'cancel-icon': projet.statut === 'annulée'}"></i>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <!-- Onglet Liste des sujets -->
+  <div *ngIf="activeTab === 'liste'" class="sujets-list-container">
+    <div class="filters">
+      <select class="filiere-filter" [(ngModel)]="filiereFilter" (change)="filterSujets()">
+        <option value="tous">Toutes les filières</option>
+        <option value="MECA">MECA</option>
+        <option value="GSI">GSI</option>
+      </select>
+    </div>
+    
+    <table class="sujets-table">
+      <thead>
+        <tr>
+          <th>Encadrent</th>
+          <th>Email</th>
+          <th>Sujet validée</th>
+          <th>Filière</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let sujet of filteredSujets">
+          <td>{{ sujet.name }}</td>
+          <td>{{ sujet.email }}</td>
+          <td>{{ sujet.sujet }}</td>
+          <td>
+            <span class="filiere-badge" [ngClass]="getFiliereClass(sujet.filiere)">
+              {{ sujet.filiere }}
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
