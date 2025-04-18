@@ -1,7 +1,5 @@
-import { Utilisateur } from './utilisateur.model';
+import { user } from './user.model';
 
-export interface ChefDep {
-  id: number;
-  utilisateur: Utilisateur;
+export interface ChefDep extends user {
   departement: string;
 }

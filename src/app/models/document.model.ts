@@ -1,11 +1,16 @@
 import { Binome } from './binome.model';
 import { Projet } from './projet.model';
 
+export enum DocumentType {
+  RAPPORT_FINAL = 'rapport_final',
+  NORMAL = 'normal'
+}
+
 export interface Document {
-  id: number;
+  id?: number;
   titre: string;
-  type: 'rapport_final' | 'normal';
-  dateDepot: string;
+  type: DocumentType;
+  dateDepot?: Date;
   cheminFichier: string;
   binome: Binome;
   projet: Projet;

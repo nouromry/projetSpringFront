@@ -1,9 +1,10 @@
-import { Utilisateur } from './utilisateur.model';
+import { user } from './user.model';
+import { Binome } from './binome.model';
 
-export interface Etudiant {
-  id: number;
-  utilisateur: Utilisateur;
-  moyenneGeneral: number;
+export interface Etudiant extends user {
+  moyenneGeneral?: number;
   matricule: string;
   filiere: string;
+  binomeAsEtud1?: Binome;
+  binomeAsEtud2?: Binome;
 }

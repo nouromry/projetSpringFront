@@ -1,1 +1,221 @@
-<p>gestion-soutenances works!</p>
+<!-- gestion-soutenances.component.html -->
+<div class="page-container">
+  <div class="tabs">
+    <button
+      [class.active]="activeTab === 'repartition'"
+      (click)="setActiveTab('repartition')"
+    >
+      Répartition des soutenances
+    </button>
+    <button
+      [class.active]="activeTab === 'planification'"
+      (click)="setActiveTab('planification')"
+    >
+      Planification des soutenances
+    </button>
+  </div>
+
+  <div class="filters-container">
+    <div class="date-filter">
+      <label for="filterDate">Filtrer par date:</label>
+      <input
+        type="date"
+        id="filterDate"
+        [(ngModel)]="filterDate"
+        (change)="filterByDate()"
+      />
+    </div>
+    <div class="search-filter">
+      <input type="text" placeholder="Rechercher..." [(ngModel)]="searchTerm" />
+    </div>
+  </div>
+
+  <div class="tab-content" *ngIf="activeTab === 'repartition'">
+    <div class="table-container">
+      <div *ngIf="loading" class="loading-spinner">Chargement en cours...</div>
+
+      <table class="soutenances-table" *ngIf="!loading">
+        <thead>
+          <tr>
+            <th>Numéro de salle</th>
+            <th>Enseignant</th>
+            <th>Date de soutenance</th>
+            <th>Disponibilité</th>
+            <th>Nbr des binômes</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let soutenance of soutenances">
+            <td>{{ soutenance.salle }}</td>
+            <td>
+              <ng-container
+                *ngFor="
+                  let line of getEnseignantLines(soutenance.enseignants);
+                  let last = last
+                "
+              >
+                {{ line }}<br *ngIf="!last" />
+              </ng-container>
+            </td>
+            <td>{{ soutenance.dateSoutenance | date : "dd/MM/yyyy" }}</td>
+            <td>{{ soutenance.disponible ? "Oui" : "Non" }}</td>
+            <td>{{ soutenance.nombreBinomes }}</td>
+            <td>
+              <button
+                class="view-button"
+                (click)="viewSoutenanceDetails(soutenance)"
+              >
+                <i class="fas fa-eye"></i>
+              </button>
+            </td>
+          </tr>
+          <tr *ngIf="soutenances.length === 0">
+            <td colspan="6" class="no-data">Aucune soutenance trouvée</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="tab-content" *ngIf="activeTab === 'planification'">
+    <div class="planning-container">
+      <div class="calendar-section">
+        <div class="calendar-header">
+          <button class="nav-button" (click)="previousMonth()">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <h3>{{ currentMonth | date : "MMMM yyyy" }}</h3>
+          <button class="nav-button" (click)="nextMonth()">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+
+        <div class="calendar-grid">
+          <div class="day-header" *ngFor="let day of dayHeaders">{{ day }}</div>
+          <div
+            class="day-cell"
+            *ngFor="let day of calendarDays"
+            [class.current-month]="day.isCurrentMonth"
+            [class.has-defense]="hasDefense(day.date)"
+            (click)="selectDate(day.date)"
+          >
+            {{ day.date.getDate() }}
+            <div class="defense-dot" *ngIf="hasDefense(day.date)"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="planning-form" *ngIf="selectedDate">
+        <h3>Planification pour le {{ selectedDate | date : "dd/MM/yyyy" }}</h3>
+
+        <div class="form-group">
+          <label>Numéro de salle:</label>
+          <select [(ngModel)]="newDefense.salle">
+            <option *ngFor="let salle of availableSalles" [value]="salle">
+              {{ salle }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Encadrant:</label>
+          <select [(ngModel)]="newDefense.encadrant">
+            <option
+              *ngFor="let enseignant of enseignants"
+              [value]="enseignant.id"
+            >
+              {{ enseignant.nom }} {{ enseignant.prenom }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Examinateur:</label>
+          <select [(ngModel)]="newDefense.examinateur">
+            <option
+              *ngFor="let enseignant of enseignants"
+              [value]="enseignant.id"
+            >
+              {{ enseignant.nom }} {{ enseignant.prenom }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Binôme:</label>
+          <select [(ngModel)]="newDefense.binome">
+            <option *ngFor="let binome of availableBinomes" [value]="binome.id">
+              {{ getStudentName(binome.etud1) }} &
+              {{ getStudentName(binome.etud2) }}
+            </option>
+          </select>
+        </div>
+
+        <div class="time-slots">
+          <div
+            class="time-option"
+            *ngFor="let slot of timeSlots"
+            [class.selected]="newDefense.heure === slot"
+            (click)="newDefense.heure = slot"
+          >
+            {{ slot }}
+          </div>
+        </div>
+
+        <button class="validate-button" (click)="saveDefense()">Valider</button>
+      </div>
+    </div>
+  </div>
+  <!-- Add this at the end of your template, before the last closing </div> -->
+  <div class="modal-overlay" *ngIf="selectedSoutenance">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h2>Détails de soutenance</h2>
+        <button class="close-btn" (click)="closeModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="detail-section">
+          <h3>Titre de rapport:</h3>
+          <p>
+            Conception et Réalisation d'un Robot Suiveur de Ligne Intelligent
+          </p>
+        </div>
+
+        <div class="detail-section">
+          <h3>Encadré par:</h3>
+          <p>M. Foulen Foulen</p>
+        </div>
+
+        <div class="detail-row">
+          <div class="detail-item">
+            <h3>Validé le:</h3>
+            <p>13/07/2025</p>
+          </div>
+          <div class="detail-item">
+            <h3>Soutenance le:</h3>
+            <p>13/07/2025</p>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Rapporteur:</h3>
+          <p>M. Foulen Foulen</p>
+        </div>
+
+        <div class="detail-section">
+          <h3>Binôme:</h3>
+          <div class="binome-list">
+            <div
+              *ngFor="let member of getBinomeMembers(selectedSoutenance)"
+              class="binome-member"
+            >
+              {{ member }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

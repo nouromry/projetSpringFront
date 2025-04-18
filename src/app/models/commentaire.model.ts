@@ -1,10 +1,10 @@
-import { Utilisateur } from './utilisateur.model';
+import { user } from './user.model';
 import { Projet } from './projet.model';
 
 export interface Commentaire {
-  id: number;
+  id?: number;
   contenu: string;
-  dateCommentaire: string; // ISO date string
-  auteur: Utilisateur;
+  dateCommentaire?: Date;
+  auteur: user;
   projet: Projet;
 }

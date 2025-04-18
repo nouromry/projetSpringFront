@@ -1,0 +1,58 @@
+/* Sidebar */
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    margin: 0;
+    background-color: #f4f4f4; /* You can set a background color */
+    padding: 1rem; /* Optional padding for aesthetics */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Optional box shadow */
+  }
+  
+  /* Main content */
+  .main-content {
+    margin-left: 240px; /* Leave space for the sidebar */
+    padding: 1.5rem;
+    min-height: 100vh; /* Ensure it takes at least the full height of the viewport */
+    overflow-y: auto; /* Allow scrolling if the content exceeds the viewport height */
+  }
+  
+  /* Optional: Style for the entire layout */
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    box-sizing: border-box;
+    padding: 0;
+  }
+  .layout {
+    display: flex;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+  }
+  .main-content {
+    flex: 1;
+    overflow: auto;
+  }
+
+  /* In your component's CSS or global styles */
+.container {
+  display: flex;
+  height: 100vh; /* Full viewport height */
+  width: 100vw; /* Full viewport width */
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.sidebar {
+  flex: 0 0 250px; /* Fixed width */
+  height: 100%;
+}
+
+.main-content {
+  flex: 1; /* Takes remaining space */
+  overflow-y: auto; /* Allows scrolling if content is long */
+}

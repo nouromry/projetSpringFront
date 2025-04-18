@@ -1,6 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { HttpClientModule } from '@angular/common/http'
+import { FormsModule } from '@angular/forms';
+import { SharedModule } from '../shared/shared.module';
 import { ChefDepartementRoutingModule } from './chef-departement-routing.module';
 import { ChefDepartementComponent } from './chef-departement.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
@@ -21,7 +23,11 @@ import { GestionSoutenancesComponent } from './gestion-soutenances/gestion-soute
   ],
   imports: [
     CommonModule,
-    ChefDepartementRoutingModule
+    HttpClientModule,
+    FormsModule,
+    ChefDepartementRoutingModule,
+    SharedModule 
   ]
+
 })
 export class ChefDepartementModule { }
