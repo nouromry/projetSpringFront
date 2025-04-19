@@ -6,4 +6,5 @@ export interface Etudiant {
   moyenneGeneral: number;
   matricule: string;
   filiere: string;
+  groupe: String
 }

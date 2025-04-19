@@ -1,0 +1,159 @@
+/* login.component.css */
+.login-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  background-color: #f0f0f0;
+  gap: 20px; /* Adding horizontal gap between panels */
+}
+
+.login-card {
+  width: 400px;
+  max-width: 400px;
+  padding: 2rem 3rem;
+  margin-left: auto;
+  margin-top: auto;
+  margin-bottom: auto;
+  background-color: #3498db;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  color: #003366;
+}
+
+.login-title {
+  text-align: center;
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  color: #003366;
+}
+
+.login-divider {
+  height: 1px;
+  background-color: #003366;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: #003366;
+}
+
+.input-field {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 1rem;
+}
+
+.input-field.invalid {
+  border: 1px solid #ff4d4d;
+}
+
+.error-message {
+  color: #ff4d4d;
+  font-size: 0.8rem;
+  margin-top: 0.3rem;
+}
+
+.forgot-password {
+  text-align: left;
+  font-size: 0.8rem;
+  margin-bottom: 1.5rem;
+  color: #003366;
+}
+
+.forgot-password a {
+  color: #003366;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.forgot-password a:hover {
+  text-decoration: underline;
+}
+
+.error-alert {
+  background-color: rgba(255, 77, 77, 0.2);
+  color: white;
+  padding: 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.login-button {
+  width: 100%;
+  max-width: 200px;
+  padding: 0.75rem;
+  background-color: #666;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: block;
+  margin: 0 auto;
+}
+
+.login-button:hover {
+  background-color: #555;
+}
+
+.login-button:disabled {
+  background-color: #888;
+  cursor: not-allowed;
+}
+
+.spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.logo-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #001f3f;
+}
+
+.logo {
+  max-width: 100%;
+  height: auto;
+  max-height: 500px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+  .login-container {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .login-card {
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
+  }
+}

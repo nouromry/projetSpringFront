@@ -1,1 +1,40 @@
-<p>gestion-etudiants works!</p>
+<!-- gestion-etudiants.component.html -->
+<div class="container">
+  <div class="search-container">
+    <div class="filter-dropdown">
+      <button class="filter-btn">
+        <i class="fa fa-filter"></i> Filtrer par binôme
+      </button>
+    </div>
+    <div class="search-box">
+      <input type="text" [(ngModel)]="searchTerm" (input)="search()" placeholder="Rechercher..." class="search-input">
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table class="students-table">
+      <thead>
+        <tr>
+          <th>Binôme 1</th>
+          <th>Binôme 2</th>
+          <th>Classe</th>
+          <th>Groupe</th>
+          <th>Moyenne Élève</th>
+          <th>Choix de PFA</th>
+          <th>Moyenne Binôme</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let binome of filteredBinomes">
+          <td>{{ binome.prenomEtud1 }} {{ binome.nomEtud1 }}</td>
+          <td>{{ binome.prenomEtud2 }} {{ binome.nomEtud2 }}</td>
+          <td>{{ binome.filiere }}</td>
+          <td>{{ binome.groupe }}</td>
+          <td>{{ binome.moyenneEtud1 }}</td>
+          <td class="choix-pfa">{{ binome.projetsChoisis.join(', ') }}</td>
+          <td>{{ binome.moyenneBinome }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,1 +1,54 @@
-<p>login works!</p>
+<!-- login.component.html -->
+<div class="login-container">
+  <div class="login-card">
+    <h2 class="login-title">LOGIN</h2>
+    <div class="login-divider"></div>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="identifiant">Identifiant:</label>
+        <input
+          type="text"
+          id="identifiant"
+          formControlName="identifiant"
+          class="input-field"
+          [ngClass]="{'invalid': loginForm.controls['identifiant'].invalid && loginForm.controls['identifiant'].touched}"
+        >
+        <div *ngIf="loginForm.controls['identifiant'].invalid && loginForm.controls['identifiant'].touched" class="error-message">
+          Identifiant est obligatoire
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="password">Mot de passe:</label>
+        <input
+          type="password"
+          id="password"
+          formControlName="password"
+          class="input-field"
+          [ngClass]="{'invalid': loginForm.controls['password'].invalid && loginForm.controls['password'].touched}"
+        >
+        <div *ngIf="loginForm.controls['password'].invalid && loginForm.controls['password'].touched" class="error-message">
+          Mot de passe est obligatoire
+        </div>
+      </div>
+      
+      <div class="forgot-password">
+        <a (click)="forgotPassword()">Mot de passe oublié ?</a>
+      </div>
+      
+      <div *ngIf="errorMessage" class="error-alert">
+        {{ errorMessage }}
+      </div>
+      
+      <button type="submit" class="login-button" [disabled]="loginForm.invalid || loading">
+        <span *ngIf="loading" class="spinner"></span>
+        <span *ngIf="!loading">Se connecter</span>
+      </button>
+    </form>
+  </div>
+  
+  <div class="logo-container">
+    <img src="assets/logo.png" alt="ENCARTHAGE" class="logo">
+  </div>
+</div>

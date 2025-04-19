@@ -1,1 +1,107 @@
-<p>gestion-soutenances works!</p>
+<div class="container">
+    <div class="header">
+      <div class="filter-container">
+        <span class="filter-label">Trier:</span>
+        <div class="dropdown">
+          <button class="dropdown-toggle">
+            {{ selectedFilter }}
+            <i class="dropdown-icon"></i>
+          </button>
+          <div class="dropdown-menu" *ngIf="isDropdownOpen">
+            <div class="dropdown-item" *ngFor="let filter of filterOptions" (click)="selectFilter(filter)">
+              {{ filter }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="reports-grid">
+      <div class="report-card" *ngFor="let rapport of rapports">
+        <div class="report-header">
+          <span class="report-title">Rapport n° {{ rapport.numero }}</span>
+          <div class="report-actions">
+            <button class="action-btn delete" (click)="deleteRapport(rapport)">
+              <i class="delete-icon"></i>
+            </button>
+            <button class="action-btn share" (click)="shareRapport(rapport)">
+              <i class="share-icon"></i>
+            </button>
+          </div>
+        </div>
+        
+        <div class="report-content">
+          <div class="pdf-icon">
+            <img src="assets/images/pdf-icon.png" alt="PDF">
+          </div>
+          
+          <div class="report-details">
+            <h3 class="report-name">{{ rapport.titre }}</h3>
+            <p class="report-id">#{{ rapport.id }}</p>
+            <p class="report-date">date de dépôt : {{ rapport.dateDepot }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Empty state - show when no reports are available -->
+    <div class="empty-state" *ngIf="rapports.length === 0">
+      <div class="empty-icon">
+        <img src="assets/images/empty-folder.png" alt="No reports">
+      </div>
+      <h3>Aucun rapport disponible</h3>
+      <p>Les rapports finaux de PFA seront affichés ici.</p>
+    </div>
+  
+    <!-- Floating add button -->
+    <button class="add-btn" (click)="openAddRapportModal()">
+      <i class="add-icon"></i>
+    </button>
+  
+    <!-- Add/Edit Rapport Modal -->
+    <div class="modal" *ngIf="isModalOpen">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>{{ editMode ? 'Modifier le' : 'Ajouter un' }} rapport</h3>
+          <button class="close-btn" (click)="closeModal()">
+            <i class="close-icon"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form [formGroup]="rapportForm" (ngSubmit)="saveRapport()">
+            <div class="form-group">
+              <label for="titre">Titre du rapport</label>
+              <input type="text" id="titre" formControlName="titre" placeholder="rapport final de PFA">
+            </div>
+            <div class="form-group">
+              <label for="numero">Numéro</label>
+              <input type="number" id="numero" formControlName="numero" placeholder="23">
+            </div>
+            <div class="form-group">
+              <label for="file">Fichier PDF</label>
+              <div class="file-upload">
+                <input type="file" id="file" accept=".pdf" (change)="onFileSelected($event)">
+                <div class="upload-area">
+                  <i class="upload-icon"></i>
+                  <span>Glisser et déposer un fichier ou</span>
+                  <button type="button" class="browse-btn">Parcourir</button>
+                </div>
+                <div class="selected-file" *ngIf="selectedFile">
+                  <span>{{ selectedFile.name }}</span>
+                  <button type="button" class="remove-file" (click)="removeSelectedFile()">
+                    <i class="delete-icon"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="button" class="cancel-btn" (click)="closeModal()">Annuler</button>
+              <button type="submit" class="save-btn" [disabled]="!rapportForm.valid || !selectedFile">
+                {{ editMode ? 'Modifier' : 'Ajouter' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
