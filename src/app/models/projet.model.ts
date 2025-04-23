@@ -5,8 +5,9 @@ export interface Projet {
   titre: string;
   description: string;
   technologies: string;
-  etat: 'en_cours' | 'termine' | 'en_attente';
-  dateDepot: string; // ISO string
+  etat: 'EN_ATTENTE' | 'VALIDE' | 'ANNULEE';
+  dateDepot: string;
   dateAffectation: string;
   enseignant: Enseignant;
+  filiere: string;
 }

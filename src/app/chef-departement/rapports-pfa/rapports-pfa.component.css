@@ -1,0 +1,320 @@
+.gestion-soutenances-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .filter-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .filter-container label {
+    font-weight: 500;
+    margin-right: 10px;
+  }
+  
+  .select-wrapper {
+    position: relative;
+    width: 200px;
+  }
+  
+  .select-wrapper::after {
+    content: "\25BC";
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 12px;
+    color: #888;
+  }
+  
+  .filter-select {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 20px;
+    border: 1px solid #e0e0e0;
+    background-color: white;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .filter-select:focus {
+    outline: none;
+    border-color: #4a90e2;
+  }
+  
+  .documents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  
+  .document-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  
+  .document-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .rapport-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background-color: #f0f4f8;
+    border-bottom: 1px solid #e6ecf5;
+  }
+  
+  .rapport-title {
+    font-weight: 600;
+    color: #1e3a8a;
+    font-size: 14px;
+  }
+  
+  .rapport-actions {
+    display: flex;
+    gap: 5px;
+  }
+  
+  .action-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 4px;
+    color: #637381;
+    transition: background-color 0.2s;
+  }
+  
+  .action-button:hover {
+    background-color: #e6ecf5;
+  }
+  
+  .action-button.delete:hover {
+    color: #dc3545;
+  }
+  
+  .action-button.share:hover {
+    color: #0d6efd;
+  }
+  
+  .action-button i {
+    font-size: 16px;
+  }
+  
+  .document-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 15px;
+    text-align: center;
+  }
+  
+  .pdf-icon {
+    margin-bottom: 15px;
+  }
+  
+  .pdf-icon img {
+    width: 60px;
+    height: auto;
+  }
+  
+  .document-title {
+    font-weight: 600;
+    color: #0a3977;
+    font-size: 16px;
+    line-height: 1.4;
+  }
+  
+  .document-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 15px;
+    background-color: white;
+    border-top: 1px solid #e6ecf5;
+    font-size: 12px;
+    color: #637381;
+  }
+  
+  .document-id {
+    font-weight: 500;
+  }
+  
+  .document-date {
+    font-weight: 400;
+  }
+  
+  /* Make sure Font Awesome is included in your index.html or imported elsewhere */
+
+
+  .share-form-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    backdrop-filter: blur(3px);
+  }
+  
+  .share-form {
+    background-color: white;
+    padding: 0;
+    border-radius: 12px;
+    width: 400px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    overflow: hidden;
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  @keyframes slideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  
+  .form-header {
+    background-color: #0a3977;
+    padding: 18px 25px;
+    color: white;
+    border-bottom: 1px solid #e8e8e8;
+  }
+  
+  .form-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  
+  .form-content {
+    padding: 25px;
+  }
+  
+  .info-row {
+    display: flex;
+    margin-bottom: 15px;
+    align-items: baseline;
+  }
+  
+  .label {
+    font-weight: 600;
+    color: #555;
+    width: 140px;
+    font-size: 14px;
+  }
+  
+  .value {
+    color: #333;
+    flex: 1;
+    font-size: 15px;
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 15px 25px 20px;
+    gap: 12px;
+    border-top: 1px solid #f0f0f0;
+    background-color: #f9f9f9;
+  }
+  
+  .btn-telecharger {
+    background-color: #0d6efd;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .btn-telecharger:hover {
+    background-color: #0b5ed7;
+  }
+  
+  .btn-fermer {
+    background-color: #f2f2f2;
+    color: #555;
+    border: 1px solid #ddd;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .btn-fermer:hover {
+    background-color: #e9e9e9;
+    color: #333;
+  }
+  
+  /* Add hover effect on document info rows */
+  .info-row:hover {
+    background-color: #f8f9fa;
+    border-radius: 4px;
+  }
+
+
+
+  /* Add these styles to your rapports-pfa.component.css file */
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top: 4px solid #2196F3;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-container {
+  padding: 1rem;
+  background-color: #ffebee;
+  border-left: 4px solid #f44336;
+  margin: 1rem;
+}
+
+.error-message {
+  color: #d32f2f;
+  margin: 0;
+}
+
+.btn-telecharger:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}

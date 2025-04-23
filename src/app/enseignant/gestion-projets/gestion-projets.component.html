@@ -1,0 +1,150 @@
+<div *ngIf="activeTab === 'validation' && !showDetail" class="projects-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Numéro</th>
+          <th>Encadrant</th>
+          <th>Titre du projet</th>
+          <th>Date de dépôt</th>
+          <th>Statut</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let projet of filteredProjets" (click)="showProjetDetail(projet)">
+          <td>{{ projet.id }}</td>
+          <td>{{ projet.enseignant.nom }}
+            {{ projet.enseignant.prenom }}
+          </td>
+          <td>{{ projet.titre || '-' }}</td>
+          <td>{{ projet.dateDepot }}</td>
+          <td>
+            <div class="status-badge" [ngClass]="getStatusClass(projet.etat)">
+
+              {{ projet.etat }}
+              <i class="status-icon"></i>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div *ngIf="activeTab === 'validation' && showDetail" class="projet-detail-container">
+    <button class="back-button" (click)="backToList()">Retour à la liste</button>
+
+    <div class="projet-detail-card">
+      <h2 class="titre-centre">Détail du projet</h2>
+
+      <div class="detail-section-inline">
+        <h3>Titre :</h3>
+        <p>{{ selectedProjet.titre || 'Aucun titre' }}</p>
+      </div>
+
+      <div class="detail-sections-container">
+        <div class="detail-section">
+          <h3>Technologies et outils</h3>
+          <p>{{ selectedProjet.technologies || 'Non spécifié' }}</p>
+        </div>
+
+        <div class="detail-section">
+          <h3>Description du projet</h3>
+          <p>{{ selectedProjet.description || 'Aucune description' }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab === 'liste'" class="projects-table">
+    <table class="projets-table">
+      <thead>
+        <tr>
+          <th>Encadrant</th>
+          <th>Email</th>
+          <th>Titres des projets</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let enseignant of objectKeys(groupedProjets)">
+          <td>
+            {{ groupedProjets[enseignant][0].enseignant.nom }} 
+            {{ groupedProjets[enseignant][0].enseignant.prenom }}
+          </td>
+          <td>{{ groupedProjets[enseignant][0].enseignant.email }}</td>
+          <td>
+            <div class="badges-container-vertical">
+              <span *ngFor="let projet of groupedProjets [enseignant]" class="badge">
+                {{ projet.titre }} <small>({{ projet.filiere }})</small>
+              </span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <!-- Add a button to show the form -->
+<button *ngIf="!showAddForm" class="add-project-button" (click)="toggleAddForm()">Ajouter un projet</button>
+
+<!-- Form for adding a new project -->
+<div *ngIf="showAddForm" class="add-project-form-container">
+  <div class="form-header">
+    <h2>Ajouter un nouveau projet</h2>
+    <button class="close-button" (click)="toggleAddForm()">×</button>
+  </div>
+  
+  <form [formGroup]="projetForm" (ngSubmit)="onSubmitProjet()">
+    <div class="form-group">
+      <label for="titre">Titre du projet *</label>
+      <input type="text" id="titre" formControlName="titre" required>
+      <div *ngIf="projetForm.get('titre')?.invalid && projetForm.get('titre')?.touched" class="error-message">
+        Le titre est obligatoire
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="description">Description *</label>
+      <textarea id="description" formControlName="description" rows="4" required></textarea>
+      <div *ngIf="projetForm.get('description')?.invalid && projetForm.get('description')?.touched" class="error-message">
+        La description est obligatoire
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="technologies">Technologies et outils *</label>
+      <input type="text" id="technologies" formControlName="technologies" required>
+      <div *ngIf="projetForm.get('technologies')?.invalid && projetForm.get('technologies')?.touched" class="error-message">
+        Les technologies sont obligatoires
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="filiere">Filière *</label>
+      <select id="filiere" formControlName="filiere" required>
+        <option value="">Sélectionner une filière</option>
+        <option value="GSIL">GSIL</option>
+        <option value="MECA">MECA</option>
+        <option value="MECA">INFOTRO</option>
+      </select>
+      <div *ngIf="projetForm.get('filiere')?.invalid && projetForm.get('filiere')?.touched" class="error-message">
+        La filière est obligatoire
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="enseignant">Encadrant *</label>
+      <select id="enseignant" formControlName="enseignant" required>
+        <option value="">Sélectionner un encadrant</option>
+        <option *ngFor="let enseignant of enseignants" [ngValue]="enseignant">
+          {{ enseignant.nom }} {{ enseignant.prenom }}
+        </option>
+      </select>
+      <div *ngIf="projetForm.get('enseignant')?.invalid && projetForm.get('enseignant')?.touched" class="error-message">
+        L'encadrant est obligatoire
+      </div>
+    </div>
+    
+    <div class="form-actions">
+      <button type="button" class="cancel-button" (click)="toggleAddForm()">Annuler</button>
+      <button type="submit" class="submit-button" [disabled]="projetForm.invalid">Enregistrer</button>
+    </div>
+  </form>
+</div>

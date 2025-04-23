@@ -1,1 +1,109 @@
-<p>rapports-pfa works!</p>
+<div class="gestion-soutenances-container">
+  <div class="filter-container">
+    <label for="filter">Trier: </label>
+    <div class="select-wrapper">
+      <select id="filter" [(ngModel)]="selectedFilter" (change)="onFilterChange($event)" class="filter-select">
+        <option *ngFor="let option of filterOptions" [value]="option.value">{{ option.label }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="documents-grid">
+    <div class="document-card" *ngFor="let document of filteredDocuments">
+      <div class="rapport-header">
+        <span class="rapport-title">Rapport n° {{ document.id }}</span>
+        <div class="rapport-actions">
+          <button class="action-button delete" (click)="deleteDocument(document.id)">
+            <i class="fa fa-trash"></i>
+          </button>
+          <button class="action-button share" (click)="shareDocument(document)">
+            <i class="fa fa-share-alt"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="document-content">
+        <div class="pdf-icon">
+          <img src="assets/pdf.png" alt="PDF" />
+        </div>
+        <div class="document-title">
+          Rapport final<br />de PFA
+        </div>
+      </div>
+
+      <div class="document-footer">
+        <span class="document-id">#{{ document.id }}</span>
+        <span class="document-date">date de dépôt : {{ formatDate(document.dateDepot) }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Share form modal -->
+<div class="share-form-container" *ngIf="sharedDocument" (click)="closeShareForm()">
+  <div class="share-form" (click)="$event.stopPropagation()">
+    <div class="form-header">
+      <h3>Détails du document</h3>
+    </div>
+    
+    <!-- Loading indicator -->
+    <div class="loading-container" *ngIf="loading">
+      <div class="loading-spinner"></div>
+      <p>Chargement des détails...</p>
+    </div>
+    
+    <!-- Error message -->
+    <div class="error-container" *ngIf="error">
+      <p class="error-message">{{ error }}</p>
+    </div>
+    
+    <!-- Document details content -->
+    <div class="form-content" *ngIf="!loading && !error && documentDetails">
+      <div class="info-row">
+        <span class="label">titre de projet:</span>
+        <span class="value">{{ documentDetails.projetTitre }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">ID du binôme:</span>
+        <span class="value">{{ documentDetails.binomeId }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">etudiant 1: nom et prenom</span>
+        <span class="value">{{ documentDetails.etudiant1Nom }} {{ documentDetails.etudiant1Prenom }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">filiere</span>
+        <span class="value">{{ documentDetails.etudiant1Filiere }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">etudiant 2: nom et prenom</span>
+        <span class="value">{{ documentDetails.etudiant2Nom }} {{ documentDetails.etudiant2Prenom }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">filiere</span>
+        <span class="value">{{ documentDetails.etudiant2Filiere }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Enseignant:</span>
+        <span class="value">{{ documentDetails.enseignantNom }} {{ documentDetails.enseignantPrenom }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Titre:</span>
+        <span class="value">{{ documentDetails.titre }}</span>
+      </div>
+      <div class="info-row">
+        <span class="label">Date de dépôt:</span>
+        <span class="value">{{ formatDate(documentDetails.dateDepot) }}</span>
+      </div>
+    </div>
+    
+    <div class="form-actions">
+      <button class="btn-telecharger" (click)="telechargerDocument()" [disabled]="loading || error">
+        <i class="fas fa-download"></i> Télécharger
+      </button>
+      <button class="btn-fermer" (click)="closeShareForm()">
+        <i class="fas fa-times"></i> Fermer
+      </button>
+    </div>
+  </div>
+</div>

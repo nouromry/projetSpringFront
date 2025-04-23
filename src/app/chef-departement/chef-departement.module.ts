@@ -11,6 +11,7 @@ import { RapportsPfaComponent } from './rapports-pfa/rapports-pfa.component';
 import { GestionSoutenancesComponent } from './gestion-soutenances/gestion-soutenances.component';
 import { SharedModule } from '../shared/shared.module'; // 👈 Import shared module
 
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import { SharedModule } from '../shared/shared.module'; // 👈 Import shared mo
     ChefDepartementRoutingModule,
     FormsModule,       // Add this
     ReactiveFormsModule,
-    SharedModule
+    SharedModule,
+    HttpClientModule
   ]
 })
 export class ChefDepartementModule { }

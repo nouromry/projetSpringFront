@@ -1,224 +1,322 @@
-import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-
-interface Rapport {
-  id: string;
-  numero: number;
-  titre: string;
-  dateDepot: string;
-  filePath?: string;
-}
+import { Component,OnInit } from '@angular/core';
+import { SoutenanceService } from '../../services/soutenance.service';
+import { EnseignantService } from '../../services/enseignant.service';
+import { BinomeService } from '../../services/binome.service';
+import { Soutenance  } from '../../models/soutenance.model'; // Import the interface
+import { SoutenanceView } from '../../models/soutenance-view.model';
+import { Binome } from '../../models/binome.model';
+import { Enseignant } from '../../models/enseignant.model';
+import { Etudiant } from 'src/app/models/etudiant.model'; // adapte le chemin
 
 @Component({
   selector: 'app-gestion-soutenances',
   templateUrl: './gestion-soutenances.component.html',
   styleUrls: ['./gestion-soutenances.component.css']
 })
+
 export class GestionSoutenancesComponent implements OnInit {
-  // Filter options
-  filterOptions: string[] = ['semaine dernière', 'mois dernier', 'tous les rapports'];
-  selectedFilter: string = 'semaine dernière';
-  isDropdownOpen: boolean = false;
+  soutenances: SoutenanceView[] = [];
+  activeTab: 'repartition' | 'planification' = 'repartition';
+  filterDate: Date | null = null;
+  searchTerm: string = '';
+  loading = false;
+  selectedSoutenance: any = null;
+  // Calendar and planning properties
+dayHeaders = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+timeSlots = ['09:00', '10:30', '13:00', '14:30', '16:00'];
+currentMonth: Date = new Date();
+selectedDate: Date | null = null;
+calendarDays: any[] = [];
 
-  // Rapports data
-  rapports: Rapport[] = [];
+// Form data
+newDefense: any = {
+  salle: '',
+  encadrant: null,
+  examinateur: null,
+  binome: null,
+  heure: ''
+};
 
-  // Modal state
-  isModalOpen: boolean = false;
-  editMode: boolean = false;
-  currentRapportId: string | null = null;
-  rapportForm: FormGroup;
-  selectedFile: File | null = null;
+// Data lists
+availableSalles: string[] = [];
+enseignants: any[] = [];
+availableBinomes: Binome[] = [];
 
-  constructor(private fb: FormBuilder) {
-    this.rapportForm = this.initForm();
+  constructor(
+    private SoutenanceService: SoutenanceService,
+    private EnseignantService: EnseignantService,
+    private binomeService: BinomeService
+  ) { }
+// Add this at the beginning of ngOnInit() to check loading
+ngOnInit(): void {
+  console.log('GestionSoutenancesComponent initialized');
+  
+  // Wrap service calls in try-catch blocks
+  try {
+    this.loadSoutenances();
+    this.loadPlanningData();
+    this.generateCalendar();
+  } catch (error) {
+    console.error('Error during initialization:', error);
   }
+}
 
-  ngOnInit(): void {
-    this.loadRapports();
-  }
-
-  initForm(): FormGroup {
-    return this.fb.group({
-      titre: ['rapport final de PFA', Validators.required],
-      numero: [23, [Validators.required, Validators.min(1)]]
-    });
-  }
-
-  loadRapports(): void {
-    // This would typically be a service call to your backend
-    // For demonstration, we'll populate with sample data from the image
-    this.rapports = [
-      {
-        id: '220245',
-        numero: 23,
-        titre: 'rapport final de PFA',
-        dateDepot: '12\\05\\2024'
-      },
-      {
-        id: '220245',
-        numero: 23,
-        titre: 'rapport final de PFA',
-        dateDepot: '12\\05\\2024'
-      },
-      {
-        id: '220245',
-        numero: 23,
-        titre: 'rapport final de PFA',
-        dateDepot: '12\\05\\2024'
-      },
-      {
-        id: '220245',
-        numero: 23,
-        titre: 'rapport final de PFA',
-        dateDepot: '12\\05\\2024'
-      },
-      {
-        id: '220245',
-        numero: 23,
-        titre: 'rapport final de PFA',
-        dateDepot: '12\\05\\2024'
-      },
-      {
-        id: '220245',
-        numero: 23,
-        titre: 'rapport final de PFA',
-        dateDepot: '12\\05\\2024'
-      },
-      {
-        id: '220245',
-        numero: 23,
-        titre: 'rapport final de PFA',
-        dateDepot: '12\\05\\2024'
-      },
-      {
-        id: '220245',
-        numero: 23,
-        titre: 'rapport final de PFA',
-        dateDepot: '12\\05\\2024'
-      },
-      {
-        id: '220245',
-        numero: 23,
-        titre: 'rapport final de PFA',
-        dateDepot: '12\\05\\2024'
-      }
-    ];
-  }
-
-  // Filter dropdown methods
-  toggleDropdown(): void {
-    this.isDropdownOpen = !this.isDropdownOpen;
-  }
-
-  selectFilter(filter: string): void {
-    this.selectedFilter = filter;
-    this.isDropdownOpen = false;
-    // Here you would typically filter the reports based on the selected option
-    this.filterRapports();
-  }
-
-  filterRapports(): void {
-    // This would filter the reports based on the selected filter option
-    // For demonstration, we'll just keep all reports
-    // In a real application, you would implement filtering logic here
-    console.log(`Filtering rapports by: ${this.selectedFilter}`);
-  }
-
-  // Report actions
-  deleteRapport(rapport: Rapport): void {
-    if (confirm(`Êtes-vous sûr de vouloir supprimer le rapport n° ${rapport.numero} ?`)) {
-      this.rapports = this.rapports.filter(r => r.id !== rapport.id);
+loadSoutenances(): void {
+  console.log('Starting to load soutenances');
+  this.loading = true;
+  this.SoutenanceService.getAllSoutenances().subscribe({
+    next: (data) => {
+      console.log('Soutenances loaded successfully:', data);
+      this.soutenances = data;
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Erreur lors du chargement des soutenances', err);
+      this.loading = false;
     }
-  }
+  });
+}
 
-  shareRapport(rapport: Rapport): void {
-    // Implement sharing functionality
-    // This could open a modal with options to share via email, link, etc.
-    console.log(`Sharing rapport: ${rapport.titre}`);
-    alert(`Fonctionnalité de partage pour le rapport n° ${rapport.numero} en cours de développement.`);
-  }
+loadPlanningData(): void {
+  // Load available rooms (you might need to create a RoomService for this)
+  // For now, I'll keep the static list
+  this.availableSalles = ['Salle 101', 'Salle 202', 'Salle 303', 'Amphi A', 'Amphi B'];
 
-  // Modal methods
-  openAddRapportModal(): void {
-    this.editMode = false;
-    this.currentRapportId = null;
-    this.rapportForm = this.initForm();
-    this.selectedFile = null;
-    this.isModalOpen = true;
-  }
-
-  openEditRapportModal(rapport: Rapport): void {
-    this.editMode = true;
-    this.currentRapportId = rapport.id;
-    this.rapportForm.patchValue({
-      titre: rapport.titre,
-      numero: rapport.numero
-    });
-    this.selectedFile = null;
-    this.isModalOpen = true;
-  }
-
-  closeModal(): void {
-    this.isModalOpen = false;
-  }
-
-  onFileSelected(event: Event): void {
-    const fileInput = event.target as HTMLInputElement;
-    if (fileInput.files && fileInput.files.length > 0) {
-      this.selectedFile = fileInput.files[0];
-      // Trigger click on the file input when the upload area is clicked
-      const uploadArea = document.querySelector('.upload-area');
-      if (uploadArea) {
-        uploadArea.addEventListener('click', () => {
-          fileInput.click();
-        });
-      }
+  // Load teachers
+  this.EnseignantService.getAllEnseignants().subscribe({
+    next: (enseignants: Enseignant[]) => {
+      this.enseignants = enseignants;
+    },
+    error: (err: any) => {
+      console.error('Error loading teachers', err);
     }
-  }
-
-  removeSelectedFile(): void {
-    this.selectedFile = null;
-  }
-
-  saveRapport(): void {
-    if (this.rapportForm.invalid || !this.selectedFile) {
-      // Mark all fields as touched to trigger validation messages
-      this.rapportForm.markAllAsTouched();
-      return;
-    }
-
-    const formValues = this.rapportForm.value;
-    const today = new Date();
-    const dateDepot = `${today.getDate()}\\${today.getMonth() + 1}\\${today.getFullYear()}`;
     
-    // Create a unique ID (in a real app, this would come from the backend)
-    const id = Math.floor(100000 + Math.random() * 900000).toString();
-
-    const newRapport: Rapport = {
-      id: this.editMode && this.currentRapportId ? this.currentRapportId : id,
-      numero: formValues.numero,
-      titre: formValues.titre,
-      dateDepot: dateDepot,
-      filePath: this.selectedFile ? this.selectedFile.name : undefined
-    };
-
-    if (this.editMode && this.currentRapportId) {
-      // Update existing rapport
-      const index = this.rapports.findIndex(r => r.id === this.currentRapportId);
-      if (index !== -1) {
-        this.rapports[index] = newRapport;
+  });
+  
+    // Load available binomes
+    this.binomeService.getAllBinomes().subscribe({
+      next: (binomes) => {
+        this.availableBinomes = binomes;
+      },
+      error: (err) => {
+        console.error('Error loading student pairs', err);
       }
-    } else {
-      // Add new rapport
-      this.rapports.unshift(newRapport);
-    }
-
-    // Close the modal
-    this.closeModal();
-
-    // In a real application, you would upload the file to the server here
-    console.log('Saving rapport:', newRapport);
-    console.log('With file:', this.selectedFile);
+    });
   }
+  
+    generateCalendar(): void {
+      this.calendarDays = [];
+      const year = this.currentMonth.getFullYear();
+      const month = this.currentMonth.getMonth();
+      
+      // Get first and last day of month
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      
+      // Days from previous month
+      const prevMonthDays = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+      for (let i = prevMonthDays; i > 0; i--) {
+        const date = new Date(year, month, -i + 1);
+        this.calendarDays.push({ date, isCurrentMonth: false });
+      }
+      
+      // Current month days
+      for (let i = 1; i <= lastDay.getDate(); i++) {
+        const date = new Date(year, month, i);
+        this.calendarDays.push({ date, isCurrentMonth: true });
+      }
+      
+      // Days from next month
+      const nextMonthDays = 42 - this.calendarDays.length; // 6 weeks
+      for (let i = 1; i <= nextMonthDays; i++) {
+        const date = new Date(year, month + 1, i);
+        this.calendarDays.push({ date, isCurrentMonth: false });
+      }
+    }
+  
+  
+
+previousMonth(): void {
+  this.currentMonth = new Date(
+    this.currentMonth.getFullYear(),
+    this.currentMonth.getMonth() - 1,
+    1
+  );
+  this.generateCalendar();
+}
+
+nextMonth(): void {
+  this.currentMonth = new Date(
+    this.currentMonth.getFullYear(),
+    this.currentMonth.getMonth() + 1,
+    1
+  );
+  this.generateCalendar();
+}
+getTeacherName(teacherId: number): string {
+  const teacher = this.enseignants.find(e => e.id === teacherId);
+  return teacher ? `${teacher.prenom} ${teacher.nom}` : '';
+}
+selectDate(date: Date): void {
+  if (date.getMonth() === this.currentMonth.getMonth()) {
+    this.selectedDate = date;
+    this.newDefense = {
+      salle: '',
+      encadrant: null,
+      examinateur: null,
+      binome: null,
+      heure: ''
+    };
+  }
+}
+hasDefense(date: Date): boolean {
+  if (!this.soutenances) return false;
+  return this.soutenances.some(s => 
+    new Date(s.dateSoutenance).toDateString() === date.toDateString()
+  );
+}
+
+saveDefense(): void {
+  if (!this.selectedDate || !this.newDefense.salle || !this.newDefense.encadrant || 
+      !this.newDefense.examinateur || !this.newDefense.binome || !this.newDefense.heure) {
+    alert('Veuillez remplir tous les champs');
+    return;
+  }
+
+  const selectedBinome = this.availableBinomes.find(b => b.id === this.newDefense.binome);
+  if (!selectedBinome) {
+    alert('Binôme invalide');
+    return;
+  }
+
+  // Format date as yyyy-MM-dd
+  const formattedDate = this.selectedDate.toISOString().split('T')[0];
+  
+  // Calculate end time (assuming 1-hour duration by default)
+  const startHour = parseInt(this.newDefense.heure.split(':')[0]);
+  const startMinute = parseInt(this.newDefense.heure.split(':')[1]);
+  const endHour = startHour + 1;
+  const endMinute = startMinute;
+  
+  const heureD = `${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}:00`;
+  const heureF = `${endHour.toString().padStart(2, '0')}:${endMinute.toString().padStart(2, '0')}:00`;
+
+  // Create a new Soutenance object according to your model
+  const newSoutenance: Soutenance = {
+    id: 0, // This will be assigned by the backend
+    date:new Date(), 
+    duree: 60, // 60 minutes by default
+    heureD: heureD,
+    heureF: heureF,
+    binome: selectedBinome
+  };
+
+  // Save to database
+  this.SoutenanceService.createSoutenance(newSoutenance).subscribe({
+    next: (response) => {
+      // Refresh the list of soutenances
+      this.loadSoutenances();
+      
+      // Reset form
+      this.selectedDate = null;
+      this.newDefense = {
+        salle: '',
+        encadrant: null,
+        examinateur: null,
+        binome: null,
+        heure: ''
+      };
+      
+      this.activeTab = 'repartition';
+    },
+    error: (err) => {
+      console.error('Error creating soutenance', err);
+      alert('Une erreur est survenue lors de la création de la soutenance');
+    }
+  });
+}
+
+  setActiveTab(tab: 'repartition' | 'planification'): void {
+    this.activeTab = tab;
+  }
+
+  filterByDate(): void {
+    if (this.filterDate) {
+      this.loading = true;
+      this.SoutenanceService.getSoutenancesByDate(this.filterDate).subscribe({
+        next: (data) => {
+          this.soutenances = data;
+          this.loading = false;
+        },
+        error: (err) => {
+          console.error('Erreur lors du filtrage des soutenances', err);
+          this.loading = false;
+        }
+      });
+    } else {
+      this.loadSoutenances();
+    }
+  }
+  
+  
+  // Helper method to safely get enseignant lines as an array
+  getEnseignantLines(enseignants: string): string[] {
+    return enseignants ? enseignants.split('\n') : [];
+  }
+
+  getStudentName(etudiant: any): string {
+    // Try both possible property paths
+    return etudiant.nom || etudiant.utilisateur?.nom || 'Unknown';
+  }
+
+  // Update the viewSoutenanceDetails method
+  viewSoutenanceDetails(soutenance: SoutenanceView): void {
+    console.log('Selected soutenance:', soutenance); // Logs the selected soutenance data
+  
+    if (soutenance && soutenance.id) {
+      this.SoutenanceService.getSoutenanceById(soutenance.id).subscribe({
+        next: (details) => {
+          this.selectedSoutenance = details;
+          console.log('Loaded soutenance details:', this.selectedSoutenance); // Logs the details after loading
+          console.log('Binome:', this.selectedSoutenance?.binome); // Logs binome after loading
+        },
+        error: (err) => {
+          console.error('Error loading soutenance details', err);
+        }
+      });
+    }
+  }
+  
+  
+  // Add this new method 
+  closeModal(): void {
+    this.selectedSoutenance = null;
+  }
+// Add this helper method
+getBinomeMembers(soutenance: any): string[] {
+  if (!soutenance || !soutenance.binome) return [];
+
+  console.log('Binome:', soutenance.binome); // Log binome to see its structure
+
+  const binome = soutenance.binome;
+  const members = [];
+
+  // Check if etud1 exists and add its name
+  if (binome.etud1) {
+    members.push(`${binome.etud1.prenom} ${binome.etud1.nom}`);
+  } else {
+    members.push('Unknown Student 1');
+  }
+
+  // Check if etud2 exists and add its name
+  if (binome.etud2) {
+    members.push(`${binome.etud2.prenom} ${binome.etud2.nom}`);
+  } else {
+    members.push('Unknown Student 2');
+  }
+
+  return members;
+}
+
+
 }

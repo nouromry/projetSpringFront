@@ -1,12 +1,28 @@
 import { Binome } from './binome.model';
 import { Projet } from './projet.model';
 
-export interface Document {
+export class Document {
   id: number;
   titre: string;
-  type: 'rapport_final' | 'normal';
-  dateDepot: string;
+  type: Document.Type;
+  dateDepot: Date;
   cheminFichier: string;
-  binome: Binome;
-  projet: Projet;
+  binome?: Binome;
+  projet?: Projet;
+
+  constructor() {
+    this.id = 0;
+    this.titre = '';
+    this.type = Document.Type.normal;
+    this.dateDepot = new Date();
+    this.cheminFichier = '';
+  
+  }
+}
+
+export namespace Document {
+  export enum Type {
+    rapport_final = 'rapport_final',
+    normal = 'normal'
+  }
 }

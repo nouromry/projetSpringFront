@@ -1,33 +1,33 @@
 <div class="sidebar">
-    <div class="logo-container">
-      <img src="assets/logo.png" alt="ENICARTHAGE Logo" class="logo" />
-    </div>
-  
-    <ul class="nav-list">
-      <li [class.active]="isActive('students')" (click)="setActive('students')">
-        <i-lucide name="calendar-days"></i-lucide>
-        <span>Gestion des étudiants</span>
-      </li>
-      <li [class.active]="isActive('projects')" (click)="setActive('projects')">
-        <i-lucide name="briefcase"></i-lucide>
-        <span>Suivi des projets</span>
-      </li>
-      <li [class.active]="isActive('stats')" (click)="setActive('stats')">
-        <i-lucide name="bar-chart-4"></i-lucide>
-        <span>Les statistiques</span>
-      </li>
-      <li [class.active]="isActive('reports')" (click)="setActive('reports')">
-        <i-lucide name="file-text"></i-lucide>
-        <span>Les rapports de PFA</span>
-      </li>
-      <li [class.active]="isActive('defenses')" (click)="setActive('defenses')">
-        <i-lucide name="graduation-cap"></i-lucide>
-        <span>Gestion des soutenances</span>
-      </li>
-    </ul>
-  
-    <div class="logout">
-      <i-lucide name="log-out"></i-lucide>
-      <button>Logout</button>
-    </div>
+  <div class="logo-container">
+    <img src="assets/logo.png" alt="ENICARTHAGE Logo" class="logo" />
   </div>
+
+  <ul class="nav-list">
+    <li routerLink="gestion-etudiant" routerLinkActive="active">
+      <i-lucide name="calendar-days"></i-lucide>
+      <span>Gestion des étudiants</span>
+    </li>
+    <li routerLink="suivi-projets" routerLinkActive="active">
+      <i-lucide name="briefcase"></i-lucide>
+      <span>Suivi des projets</span>
+    </li>
+    <li routerLink="rapports" routerLinkActive="active">
+      <i-lucide name="bar-chart-4"></i-lucide>
+      <span>Les statistiques</span>
+    </li>
+    <li routerLink="rapports" routerLinkActive="active">
+      <i-lucide name="file-text"></i-lucide>
+      <span>Les rapports de PFA</span>
+    </li>
+    <li routerLink="gestion-soutenances" routerLinkActive="active">
+      <i-lucide name="graduation-cap"></i-lucide>
+      <span>Gestion des soutenances</span>
+    </li>
+  </ul>
+
+  <div class="logout">
+    <i-lucide name="log-out"></i-lucide>
+    <button>Logout</button>
+  </div>
+</div>

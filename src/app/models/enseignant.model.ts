@@ -1,7 +1,5 @@
 import { Utilisateur } from './utilisateur.model';
 
-export interface Enseignant {
-  id: number;
-  utilisateur: Utilisateur;
+export interface Enseignant extends Utilisateur {
   specialite: string;
 }

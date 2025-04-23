@@ -1,106 +1,217 @@
-<div class="container">
-    <div class="header">
-      <div class="filter-container">
-        <span class="filter-label">Trier:</span>
-        <div class="dropdown">
-          <button class="dropdown-toggle">
-            {{ selectedFilter }}
-            <i class="dropdown-icon"></i>
-          </button>
-          <div class="dropdown-menu" *ngIf="isDropdownOpen">
-            <div class="dropdown-item" *ngFor="let filter of filterOptions" (click)="selectFilter(filter)">
-              {{ filter }}
+<!-- gestion-soutenances.component.html -->
+<div class="page-container">
+    <div class="tabs">
+      <button
+        [class.active]="activeTab === 'repartition'"
+        (click)="setActiveTab('repartition')"
+      >
+        Répartition des soutenances
+      </button>
+      <button
+        [class.active]="activeTab === 'planification'"
+        (click)="setActiveTab('planification')"
+      >
+        Planification des soutenances
+      </button>
+    </div>
+  
+    <div class="filters-container">
+      <div class="date-filter">
+        <label for="filterDate">Filtrer par date:</label>
+        <input
+          type="date"
+          id="filterDate"
+          [(ngModel)]="filterDate"
+          (change)="filterByDate()"
+        />
+      </div>
+      <div class="search-filter">
+        <input type="text" placeholder="Rechercher..." [(ngModel)]="searchTerm" />
+      </div>
+    </div>
+  
+    <div class="tab-content" *ngIf="activeTab === 'repartition'">
+      <div class="table-container">
+        <div *ngIf="loading" class="loading-spinner">Chargement en cours...</div>
+  
+        <table class="soutenances-table" *ngIf="!loading">
+          <thead>
+            <tr>
+              <th>Numéro de salle</th>
+              <th>Enseignant</th>
+              <th>Date de soutenance</th>
+              <th>Disponibilité</th>
+              <th>Nbr des binômes</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let soutenance of soutenances">
+              <td>{{ soutenance.salle }}</td>
+              <td>
+                <ng-container
+                  *ngFor="
+                    let line of getEnseignantLines(soutenance.enseignants);
+                    let last = last
+                  "
+                >
+                  {{ line }}<br *ngIf="!last" />
+                </ng-container>
+              </td>
+              <td>{{ soutenance.dateSoutenance | date : "dd/MM/yyyy" }}</td>
+              <td>{{ soutenance.disponible ? "Oui" : "Non" }}</td>
+              <td>{{ soutenance.nombreBinomes }}</td>
+              <td>
+                <button
+                  class="view-button"
+                  (click)="viewSoutenanceDetails(soutenance)"
+                >
+                  <i class="fas fa-eye"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="soutenances.length === 0">
+              <td colspan="6" class="no-data">Aucune soutenance trouvée</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  
+    <div class="tab-content" *ngIf="activeTab === 'planification'">
+      <div class="planning-container">
+        <div class="calendar-section">
+          <div class="calendar-header">
+            <button class="nav-button" (click)="previousMonth()">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <h3>{{ currentMonth | date : "MMMM yyyy" }}</h3>
+            <button class="nav-button" (click)="nextMonth()">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+  
+          <div class="calendar-grid">
+            <div class="day-header" *ngFor="let day of dayHeaders">{{ day }}</div>
+            <div
+              class="day-cell"
+              *ngFor="let day of calendarDays"
+              [class.current-month]="day.isCurrentMonth"
+              [class.has-defense]="hasDefense(day.date)"
+              (click)="selectDate(day.date)"
+            >
+              {{ day.date.getDate() }}
+              <div class="defense-dot" *ngIf="hasDefense(day.date)"></div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
   
-    <div class="reports-grid">
-      <div class="report-card" *ngFor="let rapport of rapports">
-        <div class="report-header">
-          <span class="report-title">Rapport n° {{ rapport.numero }}</span>
-          <div class="report-actions">
-            <button class="action-btn delete" (click)="deleteRapport(rapport)">
-              <i class="delete-icon"></i>
-            </button>
-            <button class="action-btn share" (click)="shareRapport(rapport)">
-              <i class="share-icon"></i>
-            </button>
+        <div class="planning-form" *ngIf="selectedDate">
+          <h3>Planification pour le {{ selectedDate | date : "dd/MM/yyyy" }}</h3>
+  
+          <div class="form-group">
+            <label>Numéro de salle:</label>
+            <select [(ngModel)]="newDefense.salle">
+              <option *ngFor="let salle of availableSalles" [value]="salle">
+                {{ salle }}
+              </option>
+            </select>
           </div>
+  
+          <div class="form-group">
+            <label>Encadrant:</label>
+            <select [(ngModel)]="newDefense.encadrant">
+              <option
+                *ngFor="let enseignant of enseignants"
+                [value]="enseignant.id"
+              >
+                {{ enseignant.nom }} {{ enseignant.prenom }}
+              </option>
+            </select>
+          </div>
+  
+          <div class="form-group">
+            <label>Examinateur:</label>
+            <select [(ngModel)]="newDefense.examinateur">
+              <option
+                *ngFor="let enseignant of enseignants"
+                [value]="enseignant.id"
+              >
+                {{ enseignant.nom }} {{ enseignant.prenom }}
+              </option>
+            </select>
+          </div>
+  
+          <div class="form-group">
+            <label>Binôme:</label>
+            <select [(ngModel)]="newDefense.binome">
+              <option *ngFor="let binome of availableBinomes" [value]="binome.id">
+                {{ getStudentName(binome.etud1) }} &
+                {{ getStudentName(binome.etud2) }}
+              </option>
+            </select>
+          </div>
+  
+          <div class="time-slots">
+            <div
+              class="time-option"
+              *ngFor="let slot of timeSlots"
+              [class.selected]="newDefense.heure === slot"
+              (click)="newDefense.heure = slot"
+            >
+              {{ slot }}
+            </div>
+          </div>
+  
+          <button class="validate-button" (click)="saveDefense()">Valider</button>
         </div>
-        
-        <div class="report-content">
-          <div class="pdf-icon">
-            <img src="assets/images/pdf-icon.png" alt="PDF">
-          </div>
-          
-          <div class="report-details">
-            <h3 class="report-name">{{ rapport.titre }}</h3>
-            <p class="report-id">#{{ rapport.id }}</p>
-            <p class="report-date">date de dépôt : {{ rapport.dateDepot }}</p>
-          </div>
-        </div>
       </div>
     </div>
-  
-    <!-- Empty state - show when no reports are available -->
-    <div class="empty-state" *ngIf="rapports.length === 0">
-      <div class="empty-icon">
-        <img src="assets/images/empty-folder.png" alt="No reports">
-      </div>
-      <h3>Aucun rapport disponible</h3>
-      <p>Les rapports finaux de PFA seront affichés ici.</p>
-    </div>
-  
-    <!-- Floating add button -->
-    <button class="add-btn" (click)="openAddRapportModal()">
-      <i class="add-icon"></i>
-    </button>
-  
-    <!-- Add/Edit Rapport Modal -->
-    <div class="modal" *ngIf="isModalOpen">
-      <div class="modal-content">
+    <!-- Add this at the end of your template, before the last closing </div> -->
+    <div class="modal-overlay" *ngIf="selectedSoutenance">
+      <div class="modal-container">
         <div class="modal-header">
-          <h3>{{ editMode ? 'Modifier le' : 'Ajouter un' }} rapport</h3>
-          <button class="close-btn" (click)="closeModal()">
-            <i class="close-icon"></i>
-          </button>
+          <h2>Détails de soutenance</h2>
+          <button class="close-btn" (click)="closeModal()">&times;</button>
         </div>
+  
         <div class="modal-body">
-          <form [formGroup]="rapportForm" (ngSubmit)="saveRapport()">
-            <div class="form-group">
-              <label for="titre">Titre du rapport</label>
-              <input type="text" id="titre" formControlName="titre" placeholder="rapport final de PFA">
+          <div class="detail-section">
+            <h3>Titre de rapport:</h3>
+            <p>
+              Conception et Réalisation d'un Robot Suiveur de Ligne Intelligent
+            </p>
+          </div>
+  
+          <div class="detail-section">
+            <h3>Encadré par:</h3>
+            <p>M. Foulen Foulen</p>
+          </div>
+  
+          <div class="detail-row">
+            <div class="detail-item">
+              <h3>Validé le:</h3>
+              <p>13/07/2025</p>
             </div>
-            <div class="form-group">
-              <label for="numero">Numéro</label>
-              <input type="number" id="numero" formControlName="numero" placeholder="23">
+            <div class="detail-item">
+              <h3>Soutenance le:</h3>
+              <p>13/07/2025</p>
             </div>
-            <div class="form-group">
-              <label for="file">Fichier PDF</label>
-              <div class="file-upload">
-                <input type="file" id="file" accept=".pdf" (change)="onFileSelected($event)">
-                <div class="upload-area">
-                  <i class="upload-icon"></i>
-                  <span>Glisser et déposer un fichier ou</span>
-                  <button type="button" class="browse-btn">Parcourir</button>
-                </div>
-                <div class="selected-file" *ngIf="selectedFile">
-                  <span>{{ selectedFile.name }}</span>
-                  <button type="button" class="remove-file" (click)="removeSelectedFile()">
-                    <i class="delete-icon"></i>
-                  </button>
-                </div>
-              </div>
+          </div>
+  
+          <div class="detail-section">
+            <h3>Rapporteur:</h3>
+            <p>M. Foulen Foulen</p>
+          </div>
+  
+          <div class="detail-section">
+            <h3>Binôme:</h3>
+            <div class="binome-list">
+                <div *ngFor="let member of getBinomeMembers(selectedSoutenance)" class="binome-member">
+                    {{ member }}
+                  </div>
             </div>
-            <div class="form-actions">
-              <button type="button" class="cancel-btn" (click)="closeModal()">Annuler</button>
-              <button type="submit" class="save-btn" [disabled]="!rapportForm.valid || !selectedFile">
-                {{ editMode ? 'Modifier' : 'Ajouter' }}
-              </button>
-            </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>

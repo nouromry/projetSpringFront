@@ -1,1 +1,127 @@
-<p>suivi-projets works!</p>
+
+<div class="validation-container">
+    <div class="header">
+      <h1>Suivi des projets</h1>
+  
+      <div class="actions-row" *ngIf="!showDetail">
+        <div class="filter-container" *ngIf="activeTab === 'validation'">
+          <button class="filter-button">Filtrer par le statut</button>
+          <div class="dropdown-menu">
+            <div class="dropdown-item" (click)="filterByStatus('tous')">Tous</div>
+            <div class="dropdown-item" (click)="filterByStatus('VALIDE')">Validé</div>
+            <div class="dropdown-item" (click)="filterByStatus('EN_ATTENTE')">En attente</div>
+            <div class="dropdown-item" (click)="filterByStatus('ANNULEE')">Annulée</div>
+          </div>
+        </div>
+  
+        <div class="search-container">
+          <input
+            type="text"
+            [placeholder]="activeTab === 'validation' ? 'Rechercher un projet...' : 'Rechercher un projet validé...'"
+            class="search-input"
+            [(ngModel)]="searchTerm"
+            (input)="onSearchInput()"
+          />
+        </div>
+      </div>
+  
+      <div class="tabs-container">
+        <div class="tab" [class.active]="activeTab === 'validation'" (click)="switchTab('validation')">
+          Validation des projets
+        </div>
+        <div class="tab" [class.active]="activeTab === 'liste'" (click)="switchTab('liste')">
+          Liste des projets validés
+        </div>
+      </div>
+    </div>
+  
+    <div *ngIf="activeTab === 'validation' && !showDetail" class="projects-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Numéro</th>
+            <th>Encadrant</th>
+            <th>Titre du projet</th>
+            <th>Date de dépôt</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let projet of filteredProjets" (click)="showProjetDetail(projet)">
+            <td>{{ projet.id }}</td>
+            <td>{{ projet.enseignant.nom }}
+              {{ projet.enseignant.prenom }}
+            </td>
+            <td>{{ projet.titre || '-' }}</td>
+            <td>{{ projet.dateDepot }}</td>
+            <td>
+              <div class="status-badge" [ngClass]="getStatusClass(projet.etat)">
+  
+                {{ projet.etat }}
+                <i class="status-icon"></i>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  
+    <div *ngIf="activeTab === 'validation' && showDetail" class="projet-detail-container">
+      <button class="back-button" (click)="backToList()">Retour à la liste</button>
+  
+      <div class="projet-detail-card">
+        <h2 class="titre-centre">Détail du projet</h2>
+  
+        <div class="detail-section-inline">
+          <h3>Titre :</h3>
+          <p>{{ selectedProjet.titre || 'Aucun titre' }}</p>
+        </div>
+  
+        <div class="detail-sections-container">
+          <div class="detail-section">
+            <h3>Technologies et outils</h3>
+            <p>{{ selectedProjet.technologies || 'Non spécifié' }}</p>
+          </div>
+  
+          <div class="detail-section">
+            <h3>Description du projet</h3>
+            <p>{{ selectedProjet.description || 'Aucune description' }}</p>
+          </div>
+        </div>
+  
+        <div class="actions">
+          <button class="action-button valider" (click)="validerProjet()">Valider le projet</button>
+          <button class="action-button refuser" (click)="refuserProjet()">Refuser le projet</button>
+        </div>
+      </div>
+    </div>
+  
+    <div *ngIf="activeTab === 'liste'" class="projects-table">
+      
+    
+      <table class="projets-table">
+        <thead>
+          <tr>
+            <th>Encadrant</th>
+            <th>Email</th>
+            <th>Titres des projets</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let enseignant of objectKeys(groupedProjets)">
+            <td>
+              {{ groupedProjets[enseignant][0].enseignant.nom }} 
+              {{ groupedProjets[enseignant][0].enseignant.prenom }}
+            </td>
+            <td>{{ groupedProjets[enseignant][0].enseignant.email }}</td>
+            <td>
+              <div class="badges-container-vertical">
+                <span *ngFor="let projet of groupedProjets [enseignant]" class="badge">
+                  {{ projet.titre }} <small>({{ projet.filiere }})</small>
+                </span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
