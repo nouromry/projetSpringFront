@@ -47,7 +47,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let soutenance of soutenances">
-            <td>{{ soutenance.salle }}</td>
+            <td>{{ soutenance.salle || "Salle non affectée" }}</td>
             <td>
               <ng-container
                 *ngFor="
@@ -58,7 +58,13 @@
                 {{ line }}<br *ngIf="!last" />
               </ng-container>
             </td>
-            <td>{{ soutenance.dateSoutenance | date : "dd/MM/yyyy" }}</td>
+            <td>
+              {{
+                soutenance.dateSoutenance
+                  ? (soutenance.dateSoutenance | date : "dd/MM/yyyy")
+                  : "Non planifiée"
+              }}
+            </td>
             <td>{{ soutenance.disponible ? "Oui" : "Non" }}</td>
             <td>{{ soutenance.nombreBinomes }}</td>
             <td>
@@ -125,7 +131,7 @@
               *ngFor="let enseignant of enseignants"
               [value]="enseignant.id"
             >
-              {{ enseignant.nom }} {{ enseignant.prenom }}
+              {{ enseignant.prenom }} {{ enseignant.nom }}
             </option>
           </select>
         </div>
@@ -137,7 +143,7 @@
               *ngFor="let enseignant of enseignants"
               [value]="enseignant.id"
             >
-              {{ enseignant.nom }} {{ enseignant.prenom }}
+              {{ enseignant.prenom }} {{ enseignant.nom }}
             </option>
           </select>
         </div>
@@ -167,7 +173,7 @@
       </div>
     </div>
   </div>
-  <!-- Add this at the end of your template, before the last closing </div> -->
+
   <div class="modal-overlay" *ngIf="selectedSoutenance">
     <div class="modal-container">
       <div class="modal-header">
@@ -177,35 +183,45 @@
 
       <div class="modal-body">
         <div class="detail-section">
-          <h3>Titre de rapport:</h3>
-          <p>
-            Conception et Réalisation d'un Robot Suiveur de Ligne Intelligent
-          </p>
+          <h3>Titre de rapport :</h3>
+          <p>{{ selectedSoutenance.titre || "Non renseigné" }}</p>
         </div>
 
         <div class="detail-section">
-          <h3>Encadré par:</h3>
-          <p>M. Foulen Foulen</p>
+          <h3>Encadré par :</h3>
+          <p>{{ getEncadrant(selectedSoutenance) || "Non renseigné" }}</p>
         </div>
 
         <div class="detail-row">
           <div class="detail-item">
-            <h3>Validé le:</h3>
-            <p>13/07/2025</p>
+            <h3>Validé le :</h3>
+            <p>
+              {{
+                selectedSoutenance.dateValidation
+                  ? (selectedSoutenance.dateValidation | date : "dd/MM/yyyy")
+                  : "Non validé"
+              }}
+            </p>
           </div>
           <div class="detail-item">
-            <h3>Soutenance le:</h3>
-            <p>13/07/2025</p>
+            <h3>Soutenance le :</h3>
+            <p>
+              {{
+                selectedSoutenance.dateSoutenance
+                  ? (selectedSoutenance.dateSoutenance | date : "dd/MM/yyyy")
+                  : "Non planifiée"
+              }}
+            </p>
           </div>
         </div>
 
         <div class="detail-section">
-          <h3>Rapporteur:</h3>
-          <p>M. Foulen Foulen</p>
+          <h3>Examinateur :</h3>
+          <p>{{ getExaminateur(selectedSoutenance) || "Non renseigné" }}</p>
         </div>
 
         <div class="detail-section">
-          <h3>Binôme:</h3>
+          <h3>Binôme :</h3>
           <div class="binome-list">
             <div
               *ngFor="let member of getBinomeMembers(selectedSoutenance)"
@@ -213,9 +229,15 @@
             >
               {{ member }}
             </div>
+            <div *ngIf="getBinomeMembers(selectedSoutenance).length === 0">
+              Aucun binôme associé
+            </div>
           </div>
         </div>
       </div>
+
+      <!-- Pour débogage, temporaire -->
+      <!-- <pre>{{ selectedSoutenance | json }}</pre> -->
     </div>
   </div>
 </div>

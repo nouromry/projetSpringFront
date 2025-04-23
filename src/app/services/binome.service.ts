@@ -1,8 +1,9 @@
-// src/app/services/binome.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { environment } from 'src/environments/environment';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
+import { Binome } from '../models/binome.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -12,27 +13,62 @@ export class BinomeService {
 
   constructor(private http: HttpClient) { }
 
-  getAllBinomes(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiUrl);
+  // Get all binomes
+  getAllBinomes(): Observable<Binome[]> {
+    return this.http.get<Binome[]>(this.apiUrl).pipe(
+      tap(data => console.log('Binomes fetched:', data.length)),
+      catchError(this.handleError)
+    );
   }
 
-  getBinomeById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`);
+  // Get a specific binome by ID
+  getBinomeById(id: number): Observable<Binome> {
+    return this.http.get<Binome>(`${this.apiUrl}/${id}`).pipe(
+      catchError(this.handleError)
+    );
   }
 
-  getBinomesByProject(projetId: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/projet/${projetId}`);
+  // Create a new binome
+  createBinome(binome: Binome): Observable<Binome> {
+    return this.http.post<Binome>(this.apiUrl, binome).pipe(
+      catchError(this.handleError)
+    );
   }
 
-  createBinome(binome: any): Observable<any> {
-    return this.http.post<any>(this.apiUrl, binome);
+  // Update an existing binome
+  updateBinome(binome: Binome): Observable<Binome> {
+    return this.http.put<Binome>(`${this.apiUrl}/${binome.id}`, binome).pipe(
+      catchError(this.handleError)
+    );
   }
 
-  updateBinome(id: number, binome: any): Observable<any> {
-    return this.http.put<any>(`${this.apiUrl}/${id}`, binome);
-  }
-
+  // Delete a binome
   deleteBinome(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Get binomes without a soutenance
+  getBinomesWithoutSoutenance(): Observable<Binome[]> {
+    return this.http.get<Binome[]>(`${this.apiUrl}/without-soutenance`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // Error handling
+  private handleError(error: HttpErrorResponse) {
+    let errorMessage = 'An unknown error occurred';
+    
+    if (error.error instanceof ErrorEvent) {
+      // Client-side error
+      errorMessage = `Error: ${error.error.message}`;
+    } else {
+      // Server-side error
+      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+    }
+    
+    console.error(errorMessage);
+    return throwError(() => new Error(errorMessage));
   }
 }

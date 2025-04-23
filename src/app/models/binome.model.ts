@@ -11,4 +11,4 @@ export interface Binome {
   documents?: Document[];
   soutenance?: Soutenance;
   choixProjets?: ChoixProjet[];
-}
+}  
