@@ -8,7 +8,9 @@ import { ListeBinomesComponent } from './liste-binomes/liste-binomes.component';
 import { GestionProjetsComponent } from './gestion-projets/gestion-projets.component';
 import { DocumentsAssociesComponent } from './documents-associes/documents-associes.component';
 import { SharedModule } from '../shared/shared.module'; 
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';  // Add this import
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { EspaceEchangeComponent } from './espace-echange/espace-echange.component';  // Add this import
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -16,14 +18,16 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';  // Add this 
     PlanningSoutenancesComponent,
     ListeBinomesComponent,
     GestionProjetsComponent,
-    DocumentsAssociesComponent
+    DocumentsAssociesComponent,
+    EspaceEchangeComponent
   ],
   imports: [
     CommonModule,
     EnseignantRoutingModule,
     SharedModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    HttpClientModule
   ]
 })
 export class EnseignantModule { }

@@ -31,7 +31,8 @@ const routes: Routes = [
       {
         path: 'rapports',
         component:  RapportsPfaComponent,
-      }
+      },
+    
     ],
   },
 ];

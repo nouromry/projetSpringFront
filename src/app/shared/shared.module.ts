@@ -5,12 +5,14 @@ import { SidebarComponent } from './sidebar/sidebar.component';
 import { RouterModule } from '@angular/router';
 import { LucideAngularModule, CalendarDays, Briefcase, BarChart4, FileText, GraduationCap, LogOut } from 'lucide-angular';
 import { SidebarEnseignantComponent } from './sidebar-enseignant/sidebar-enseignant.component';
+import { SidebarEtudiantComponent } from './sidebar-etudiant/sidebar-etudiant.component';
 
 
 @NgModule({
   declarations: [
     SidebarComponent,
-    SidebarEnseignantComponent
+    SidebarEnseignantComponent,
+    SidebarEtudiantComponent
   ],
   imports: [
     CommonModule,
@@ -27,7 +29,8 @@ import { SidebarEnseignantComponent } from './sidebar-enseignant/sidebar-enseign
   ],
   exports: [
     SidebarComponent,
-    SidebarEnseignantComponent
+    SidebarEnseignantComponent,
+    SidebarEtudiantComponent
   ]
 })
 export class SharedModule { }

@@ -95,7 +95,7 @@ label {
   width: 100%;
   max-width: 200px;
   padding: 0.75rem;
-  background-color: #666;
+  background-color: #091459;
   color: white;
   border: none;
   border-radius: 6px;
@@ -106,11 +106,11 @@ label {
 }
 
 .login-button:hover {
-  background-color: #555;
+  background-color: #323965;
 }
 
 .login-button:disabled {
-  background-color: #888;
+  background-color: #0b4b74;
   cursor: not-allowed;
 }
 
@@ -136,6 +136,7 @@ label {
   align-items: center;
   justify-content: center;
   background-color: #001f3f;
+  max-width: 80%;
 }
 
 .logo {

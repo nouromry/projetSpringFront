@@ -73,41 +73,35 @@ export class GestionProjetsComponent implements OnInit {
   }
 
   onSubmitProjet(): void {
-    if (this.projetForm.invalid) {
-      // Mark all fields as touched to show validation errors
-      Object.keys(this.projetForm.controls).forEach(key => {
-        const control = this.projetForm.get(key);
-        control?.markAsTouched();
-      });
-      return;
-    }
-
-    const formValue = this.projetForm.value;
-    
-    // Create new projet object directly from form values and defaults
-    const newProjet: Projet = {
-      id: 0, // This will be assigned by the backend
-      titre: formValue.titre,
-      description: formValue.description,
-      technologies: formValue.technologies,
-      etat: 'EN_ATTENTE', // Default status for new projects
-      dateDepot: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
-      dateAffectation: '',
-      filiere: formValue.filiere,
-      enseignant: formValue.enseignant // This is the entire Enseignant object
-    };
-
-    this.projetService.createProjet(newProjet).subscribe({
-      next: (createdProjet) => {
-        console.log('Project created successfully:', createdProjet);
-        this.loadProjets(); // Reload projects list
-        this.toggleAddForm(); // Close the form
-      },
-      error: (error) => {
-        console.error('Failed to create project:', error);
-      }
-    });
+  if (this.projetForm.invalid) {
+    return;
   }
+
+  const formValue = this.projetForm.value;
+  const today = new Date().toISOString().split('T')[0];
+  
+  // Créer l'objet avec uniquement l'ID de l'enseignant si c'est ce que le backend attend
+  const payload = {
+    titre: formValue.titre,
+    description: formValue.description,
+    technologies: formValue.technologies,
+    etat: 'EN_ATTENTE',
+    dateDepot: today,
+    dateAffectation: "",
+    filiere: formValue.filiere,
+    enseignant: { id: formValue.enseignant.id }  // Envoi uniquement de l'ID de l'enseignant
+  };
+
+  this.projetService.createProjet(payload as Projet).subscribe({
+    next: (createdProjet) => {
+      this.loadProjets();
+      this.toggleAddForm();
+    },
+    error: (error) => {
+      console.error('Failed to create project:', error);
+    }
+  });
+}
 
   // Rest of your component code remains the same
   groupByEncadrant(projets: Projet[]): { [key: string]: Projet[] } {

@@ -6,6 +6,7 @@ import { ListeBinomesComponent } from './liste-binomes/liste-binomes.component';
 import { GestionProjetsComponent } from './gestion-projets/gestion-projets.component';
 import { DocumentsAssociesComponent } from './documents-associes/documents-associes.component';
 
+import { EspaceEchangeComponent } from './espace-echange/espace-echange.component';  // Add this import
 
 
 const routes: Routes = [{ path: '', component: EnseignantComponent, children: [
@@ -29,6 +30,10 @@ const routes: Routes = [{ path: '', component: EnseignantComponent, children: [
       {
         path: 'soutenances',
         component:  PlanningSoutenancesComponent,
+      },
+      {
+        path: 'espace',
+        component:  EspaceEchangeComponent,
       }
     ],
    }];

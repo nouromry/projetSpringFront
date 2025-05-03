@@ -10,7 +10,7 @@ import { SuiviProjetsComponent } from './suivi-projets/suivi-projets.component';
 import { RapportsPfaComponent } from './rapports-pfa/rapports-pfa.component';
 import { GestionSoutenancesComponent } from './gestion-soutenances/gestion-soutenances.component';
 import { SharedModule } from '../shared/shared.module'; // 👈 Import shared module
-
+import { AuthModule } from '../auth/auth.module';
 import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
@@ -28,7 +28,8 @@ import { HttpClientModule } from '@angular/common/http';
     FormsModule,       // Add this
     ReactiveFormsModule,
     SharedModule,
-    HttpClientModule
+    HttpClientModule,
+    AuthModule
   ]
 })
 export class ChefDepartementModule { }
