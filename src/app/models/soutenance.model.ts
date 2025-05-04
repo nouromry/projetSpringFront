@@ -2,12 +2,11 @@ import { Binome } from './binome.model';
 import { JurySoutenance } from './jury-soutenance.model';
 
 export interface Soutenance {
-  id: number;
-  date: Date;
-  duree?: number;
-  heureD: string; // Time format HH:MM
-  heureF: string; // Time format HH:MM
-  binome: Binome;
+  id?: number;
+  salle?: string;
+  date?: string | Date;
+  heureD?: string | Date;
+  titre?: string;
+  binome?: Binome;
   jury?: JurySoutenance[];
-  salle : string;
 }

@@ -2,6 +2,7 @@ import { Etudiant } from './etudiant.model';
 import { Document } from './document.model';
 import { Soutenance } from './soutenance.model';
 import { ChoixProjet } from './choix-projet.model';
+import { Projet } from './projet.model';
 
 export interface Binome {
   id?: number;
@@ -11,4 +12,5 @@ export interface Binome {
   documents?: Document[];
   soutenance?: Soutenance;
   choixProjets?: ChoixProjet[];
+  projetAffecte?: Projet;
 }  

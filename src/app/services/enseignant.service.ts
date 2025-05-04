@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient,HttpErrorResponse,HttpHeaders  } from '@angular/common/http';
+import { Observable, } from 'rxjs';
 import { Enseignant } from '../models/enseignant.model';
 import { environment } from '../../environments/environment';
 import { tap, catchError } from 'rxjs/operators';
@@ -60,4 +60,6 @@ export class EnseignantService {
   getEnseignantsAvailableForJury(date: string, timeSlot: string): Observable<Enseignant[]> {
     return this.http.get<Enseignant[]>(`${this.apiUrl}/available?date=${date}&timeSlot=${timeSlot}`);
   }
+  
+
 }

@@ -16,17 +16,25 @@
   </div>
 
   <div class="filters-container">
+    <!-- Date filter -->
     <div class="date-filter">
       <label for="filterDate">Filtrer par date:</label>
       <input
         type="date"
         id="filterDate"
         [(ngModel)]="filterDate"
-        (change)="filterByDate()"
+        (ngModelChange)="filterByDate()"
       />
     </div>
+
+    <!-- Search filter -->
     <div class="search-filter">
-      <input type="text" placeholder="Rechercher..." [(ngModel)]="searchTerm" />
+      <input
+        type="text"
+        placeholder="Rechercher..."
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="applyFilters()"
+      />
     </div>
   </div>
 
@@ -38,35 +46,32 @@
         <thead>
           <tr>
             <th>Numéro de salle</th>
-            <th>Enseignant</th>
+            <th>Enseignants</th>
             <th>Date de soutenance</th>
             <th>Disponibilité</th>
-            <th>Nbr des binômes</th>
+            <th>Heure de début</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let soutenance of soutenances">
+          <tr *ngFor="let soutenance of filteredSoutenances">
             <td>{{ soutenance.salle || "Salle non affectée" }}</td>
             <td>
-              <ng-container
-                *ngFor="
-                  let line of getEnseignantLines(soutenance.enseignants);
-                  let last = last
-                "
-              >
-                {{ line }}<br *ngIf="!last" />
-              </ng-container>
+              <div>{{ getEncadrant(soutenance) }} (Encadrant)</div>
+              <div>
+                {{ getExaminateur(soutenance) }} (Examinateur)
+              </div>
             </td>
             <td>
               {{
-                soutenance.dateSoutenance
+                isValidDate(soutenance.dateSoutenance)
                   ? (soutenance.dateSoutenance | date : "dd/MM/yyyy")
                   : "Non planifiée"
               }}
             </td>
             <td>{{ soutenance.disponible ? "Oui" : "Non" }}</td>
-            <td>{{ soutenance.nombreBinomes }}</td>
+            <!-- Use both heureDebut and heureD with fallback -->
+            <td>{{ soutenance.heureDebut || soutenance.heureD || "Non définie" }}</td>
             <td>
               <button
                 class="view-button"
@@ -76,7 +81,7 @@
               </button>
             </td>
           </tr>
-          <tr *ngIf="soutenances.length === 0">
+          <tr *ngIf="filteredSoutenances.length === 0">
             <td colspan="6" class="no-data">Aucune soutenance trouvée</td>
           </tr>
         </tbody>
@@ -118,6 +123,7 @@
         <div class="form-group">
           <label>Numéro de salle:</label>
           <select [(ngModel)]="newDefense.salle">
+            <option value="">Sélectionnez une salle</option>
             <option *ngFor="let salle of availableSalles" [value]="salle">
               {{ salle }}
             </option>
@@ -127,6 +133,7 @@
         <div class="form-group">
           <label>Encadrant:</label>
           <select [(ngModel)]="newDefense.encadrant">
+            <option value="">Sélectionnez un encadrant</option>
             <option
               *ngFor="let enseignant of enseignants"
               [value]="enseignant.id"
@@ -139,6 +146,7 @@
         <div class="form-group">
           <label>Examinateur:</label>
           <select [(ngModel)]="newDefense.examinateur">
+            <option value="">Sélectionnez un examinateur</option>
             <option
               *ngFor="let enseignant of enseignants"
               [value]="enseignant.id"
@@ -151,6 +159,7 @@
         <div class="form-group">
           <label>Binôme:</label>
           <select [(ngModel)]="newDefense.binome">
+            <option value="">Sélectionnez un binôme</option>
             <option *ngFor="let binome of availableBinomes" [value]="binome.id">
               {{ getStudentName(binome.etud1) }} &
               {{ getStudentName(binome.etud2) }}
@@ -159,6 +168,7 @@
         </div>
 
         <div class="time-slots">
+          <h4>Horaire:</h4>
           <div
             class="time-option"
             *ngFor="let slot of timeSlots"
@@ -187,6 +197,7 @@
           <p>{{ selectedSoutenance.titre || "Non renseigné" }}</p>
         </div>
 
+
         <div class="detail-section">
           <h3>Encadré par :</h3>
           <p>{{ getEncadrant(selectedSoutenance) || "Non renseigné" }}</p>
@@ -194,23 +205,19 @@
 
         <div class="detail-row">
           <div class="detail-item">
-            <h3>Validé le :</h3>
+            <h3>Soutenance le :</h3>
             <p>
               {{
-                selectedSoutenance.dateValidation
-                  ? (selectedSoutenance.dateValidation | date : "dd/MM/yyyy")
-                  : "Non validé"
+                isValidDate(selectedSoutenance.dateSoutenance)
+                  ? (selectedSoutenance.dateSoutenance | date : "dd/MM/yyyy")
+                  : "Non planifiée"
               }}
             </p>
           </div>
           <div class="detail-item">
-            <h3>Soutenance le :</h3>
+            <h3>Heure :</h3>
             <p>
-              {{
-                selectedSoutenance.dateSoutenance
-                  ? (selectedSoutenance.dateSoutenance | date : "dd/MM/yyyy")
-                  : "Non planifiée"
-              }}
+              {{ selectedSoutenance.heureDebut || selectedSoutenance.heureD || "Non définie" }}
             </p>
           </div>
         </div>
@@ -235,9 +242,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Pour débogage, temporaire -->
-      <!-- <pre>{{ selectedSoutenance | json }}</pre> -->
     </div>
   </div>
 </div>

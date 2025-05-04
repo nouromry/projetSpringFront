@@ -3,11 +3,10 @@ import { SoutenanceService } from '../../services/soutenance.service';
 import { EnseignantService } from '../../services/enseignant.service';
 import { BinomeService } from '../../services/binome.service';
 import { Soutenance } from '../../models/soutenance.model';
-import { SoutenanceView } from '../../models/soutenance-view.model';
+import { SoutenanceView, JuryMemberDTO } from '../../models/soutenance-view.model';
 import { Binome } from '../../models/binome.model';
 import { Enseignant } from '../../models/enseignant.model';
-import { JurySoutenance } from 'src/app/models/jury-soutenance.model';
-import { JuryRole } from 'src/app/models/jury-role.enum';
+import { JurySoutenance, JuryRole } from 'src/app/models/jury-soutenance.model';
 
 @Component({
   selector: 'app-gestion-soutenances',
@@ -19,10 +18,10 @@ export class GestionSoutenancesComponent implements OnInit {
   soutenances: SoutenanceView[] = [];
   filteredSoutenances: SoutenanceView[] = [];
   activeTab: 'repartition' | 'planification' = 'repartition';
-  filterDate: string | null = null; // Changed to string for better date handling
+  filterDate: string | null = null; 
   searchTerm: string = '';
   loading = false;
-  selectedSoutenance: any = null;
+  selectedSoutenance: SoutenanceView | null = null;
   
   // Calendar and planning properties
   dayHeaders = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
@@ -32,7 +31,13 @@ export class GestionSoutenancesComponent implements OnInit {
   calendarDays: any[] = [];
 
   // Form data
-  newDefense: any = {
+  newDefense: {
+    salle: string,
+    encadrant: number | null,
+    examinateur: number | null,
+    binome: number | null,
+    heure: string
+  } = {
     salle: '',
     encadrant: null,
     examinateur: null,
@@ -58,6 +63,34 @@ export class GestionSoutenancesComponent implements OnInit {
     this.loadSoutenances();
     this.loadPlanningData();
     this.generateCalendar();
+    this.loadBinomes();
+  }
+
+  loadBinomes(): void {
+    this.binomeService.getAllBinomes().subscribe({
+      next: (data) => {
+        this.availableBinomes = data.filter(b => !b.projetAffecte);
+      },
+      error: (err) => console.error('Error loading binomes:', err)
+    });
+  }
+  
+  // Check if date is valid for DatePipe
+  isValidDate(date: any): boolean {
+    if (!date) return false;
+    
+    // If it's already a Date object
+    if (date instanceof Date) {
+      return !isNaN(date.getTime());
+    }
+    
+    // If it's a string, try to parse it
+    if (typeof date === 'string') {
+      const d = new Date(date);
+      return !isNaN(d.getTime());
+    }
+    
+    return false;
   }
 
   loadSoutenances(): void {
@@ -65,7 +98,7 @@ export class GestionSoutenancesComponent implements OnInit {
     console.log('Loading soutenances...');
     
     // Getting all soutenances regardless of filter (we'll filter locally)
-    this.soutenanceService.getAllSoutenances().subscribe({
+    this.soutenanceService.getAllSoutenancesWithEnseignants().subscribe({
       next: (data) => {
         console.log('Data received:', data);
         this.soutenances = data;
@@ -86,44 +119,52 @@ export class GestionSoutenancesComponent implements OnInit {
     });
   }
 
-  // Apply both date and search filters
   applyFilters(): void {
+    console.log("Filters applied:", this.filterDate, this.searchTerm);
+  
     this.filteredSoutenances = [...this.soutenances];
-    
-    // Apply date filter if set
+  
+    // Filtrage par date
     if (this.filterDate) {
       const filterDateObj = new Date(this.filterDate);
-      
+      filterDateObj.setHours(0, 0, 0, 0);
+  
       this.filteredSoutenances = this.filteredSoutenances.filter(soutenance => {
         if (!soutenance.dateSoutenance) return false;
-        
+  
         const soutenanceDate = new Date(soutenance.dateSoutenance);
-        return soutenanceDate.toDateString() === filterDateObj.toDateString();
+        soutenanceDate.setHours(0, 0, 0, 0);
+  
+        return soutenanceDate.getTime() === filterDateObj.getTime();
       });
     }
-    
-    // Apply search term if set
+  
+    // Filtrage par mot-clé (salle ou enseignants)
     if (this.searchTerm && this.searchTerm.trim() !== '') {
-      const term = this.searchTerm.toLowerCase().trim();
-      
+      const term = this.searchTerm.trim().toLowerCase().replace(/\s+/g, '');
+    
       this.filteredSoutenances = this.filteredSoutenances.filter(soutenance => {
-        // Search in room
-        if (soutenance.salle && soutenance.salle.toLowerCase().includes(term)) {
-          return true;
-        }
+        const salle = soutenance.salle?.replace(/\s+/g, '').toLowerCase() ?? '';
         
-        // Search in teachers
-        if (soutenance.enseignants && soutenance.enseignants.toLowerCase().includes(term)) {
-          return true;
-        }
-        
-        // Could add more search fields if needed
-        
-        return false;
+        // Check encadrant and examinateur directly
+        const encadrantLower = soutenance.encadrant?.toLowerCase().replace(/\s+/g, '') ?? '';
+        const examinateurLower = soutenance.examinateur?.toLowerCase().replace(/\s+/g, '') ?? '';
+    
+        // Vérification dans la liste du jury
+        const juryText = soutenance.jury?.map(j => 
+          j.enseignant?.nom?.replace(/\s+/g, '').toLowerCase() || ''
+        ).join(' ') ?? '';
+    
+        return salle.includes(term) || 
+               juryText.includes(term) || 
+               encadrantLower.includes(term) || 
+               examinateurLower.includes(term);
       });
+    
+      console.log("Filtered soutenances:", this.filteredSoutenances);
     }
   }
-
+  
   updateSalleAllocations(): void {
     // Reset allocations
     this.salleAllocations = {};
@@ -141,11 +182,9 @@ export class GestionSoutenancesComponent implements OnInit {
     // Process the current filtered soutenances
     this.filteredSoutenances.forEach(soutenance => {
       if (soutenance.salle) {
-        // Get teacher names
-        const enseignantLines = this.getEnseignantLines(soutenance.enseignants);
-        const enseignantName = enseignantLines.length > 0 ? enseignantLines[0] : 'Non défini';
-        
-        // Update or create room allocation
+        // Get enseignant name directly from the SoutenanceView properties
+        const enseignantName = soutenance.encadrant || 'Non défini';
+      
         if (this.salleAllocations[soutenance.salle]) {
           this.salleAllocations[soutenance.salle].nombreBinomes++;
           this.salleAllocations[soutenance.salle].disponible = false;
@@ -270,116 +309,95 @@ export class GestionSoutenancesComponent implements OnInit {
     return `${year}-${month}-${day}`;
   }
 
+  formatTimeForBackend(time: string): string {
+    if (!time) return '';
+    
+    // Check if time is in valid format
+    const timeRegex = /^([0-1]?[0-9]|2[0-3]):?([0-5][0-9])?$/;
+    const matches = time.match(timeRegex);
+    
+    if (!matches) {
+      console.error('Invalid time format:', time);
+      return '';
+    }
+    
+    // Extract hours and minutes, ensuring 2 digits each
+    const hours = matches[1].padStart(2, '0');
+    const minutes = (matches[2] || '00').padStart(2, '0');
+    
+    return `${hours}:${minutes}`;
+  }
+
   saveDefense(): void {
-    if (!this.selectedDate || !this.newDefense.salle || !this.newDefense.encadrant ||
-        !this.newDefense.examinateur || !this.newDefense.binome || !this.newDefense.heure) {
+    // Validate form inputs
+    if (!this.selectedDate || !this.newDefense.salle || !this.newDefense.binome || 
+        !this.newDefense.heure || !this.newDefense.encadrant || !this.newDefense.examinateur) {
       alert('Veuillez remplir tous les champs');
       return;
     }
-    
+
     // Check if encadrant and examinateur are different
     if (this.newDefense.encadrant === this.newDefense.examinateur) {
       alert('L\'encadrant et l\'examinateur doivent être différents');
       return;
     }
-    
-    // Find the selected binome
-    const selectedBinome = this.availableBinomes.find(b => b.id === Number(this.newDefense.binome));
-    
-    if (!selectedBinome) {
-      alert('Binôme invalide');
-      return;
-    }
 
-    // Find selected teachers
-    const encadrant = this.enseignants.find(e => e.id === Number(this.newDefense.encadrant));
-    const examinateur = this.enseignants.find(e => e.id === Number(this.newDefense.examinateur));
-    
-    if (!encadrant || !examinateur) {
-      alert('Enseignant invalide');
-      return;
-    }
-
-    // Check room and time slot availability
-    const dateString = this.selectedDate.toDateString();
-    
-    // Calculate time
-    const [hours, minutes] = this.newDefense.heure.split(':');
-    const startHour = parseInt(hours);
-    const startMinute = parseInt(minutes);
-    const endHour = startHour + 1;
-    
-    const heureD = `${startHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
-    const heureF = `${endHour.toString().padStart(2, '0')}:${startMinute.toString().padStart(2, '0')}`;
-
-    // Format date for API to fix JSON serialization issues
+    // Format the date for API (YYYY-MM-DD)
     const formattedDate = this.formatDateForApi(this.selectedDate);
-
-    // Create a simplified soutenance object to avoid serialization issues
-    const newSoutenancePayload = {
-      // Use primitive types for the backend
-      date: formattedDate,
-      duree: 60,
-      heureD: heureD,
-      heureF: heureF,
+    
+    // Format the time to ensure HH:MM format
+    const formattedTime = this.formatTimeForBackend(this.newDefense.heure);
+    
+    // Prepare jury members in the expected format
+    const juryMembers: JuryMemberDTO[] = [
+      {
+        enseignantId: Number(this.newDefense.encadrant),
+        role: JuryRole.ENCADRANT 
+      },
+      {
+        enseignantId: Number(this.newDefense.examinateur),
+        role: JuryRole.EXAMINATEUR
+      }
+    ];
+    
+    // Prepare the complete payload in the exact format backend expects
+    const payload: SoutenanceView = {
       salle: this.newDefense.salle,
-      binomeId: selectedBinome.id
+      dateSoutenance: formattedDate,  // Send date in YYYY-MM-DD format
+      heureDebut: formattedTime,      // Send time in HH:MM format
+      binomeId: Number(this.newDefense.binome),
+      juryMembers: juryMembers
     };
 
-    console.log('Sending soutenance data:', newSoutenancePayload);
+    console.log('Sending payload:', payload);
 
-    // Save to database with a simplified payload
-    this.soutenanceService.createSoutenanceSimplified(newSoutenancePayload).subscribe({
-      next: (createdSoutenance) => {
-        console.log('Soutenance created successfully:', createdSoutenance);
-        
-        if (createdSoutenance && createdSoutenance.id) {
-          // Create payload for jury members
-          const juryPayload = {
-            soutenanceId: createdSoutenance.id,
-            members: [
-              {
-                enseignantId: encadrant.id,
-                role: 'RAPPORTEUR'
-              },
-              {
-                enseignantId: examinateur.id,
-                role: 'EXAMINATEUR'
-              }
-            ]
-          };
-          
-          // Add jury members in a single call to avoid race conditions
-          this.soutenanceService.addJuryMembers(juryPayload).subscribe({
-            next: () => {
-              alert('Soutenance planifiée avec succès!');
-              this.loadSoutenances();
-              this.selectedDate = null;
-              this.newDefense = {
-                salle: '',
-                encadrant: null,
-                examinateur: null,
-                binome: null,
-                heure: ''
-              };
-              this.activeTab = 'repartition';
-            },
-            error: (err: any) => {
-              console.error('Error adding jury members', err);
-              alert('Erreur lors de l\'ajout des membres du jury');
-            }
-          });
-        }
+    // Send the complete payload in one request
+    this.soutenanceService.createSoutenance(payload).subscribe({
+      next: (response) => {
+        alert('Soutenance planifiée avec succès!');
+        this.loadSoutenances(); // Refresh the list
+        this.resetDefenseForm();
       },
       error: (err) => {
-        console.error('Error creating soutenance', err);
-        let errorMessage = 'Une erreur est survenue lors de la création de la soutenance';
-        if (err.error && err.error.message) {
+        console.error('Error creating defense:', err);
+        let errorMessage = 'Erreur lors de la planification de la soutenance';
+        if (err.error?.message) {
           errorMessage += ': ' + err.error.message;
         }
         alert(errorMessage);
       }
     });
+  }
+
+  resetDefenseForm(): void {
+    this.selectedDate = null;
+    this.newDefense = {
+      salle: '',
+      encadrant: null,
+      examinateur: null,
+      binome: null,
+      heure: ''
+    };
   }
 
   setActiveTab(tab: 'repartition' | 'planification'): void {
@@ -399,10 +417,6 @@ export class GestionSoutenancesComponent implements OnInit {
     this.updateSalleAllocations();
   }
   
-  getEnseignantLines(enseignants: string): string[] {
-    return enseignants ? enseignants.split('\n') : [];
-  }
-
   getStudentName(etudiant: any): string {
     if (!etudiant) return 'Unknown';
     
@@ -421,7 +435,24 @@ export class GestionSoutenancesComponent implements OnInit {
     if (soutenance && soutenance.id) {
       this.soutenanceService.getSoutenanceById(soutenance.id).subscribe({
         next: (details) => {
-          this.selectedSoutenance = details;
+          console.log('Received soutenance details:', details);
+          
+          // Store the complete details for display
+          this.selectedSoutenance = {
+            ...details,
+            // Ensure these properties exist for the template
+            titre: details.titre || details.projetTitre || 'Non renseigné',
+            dateSoutenance: details.dateSoutenance,
+            heureDebut: details.heureDebut || details.heureD,
+            binome: details.binome,
+            jury: details.jury,
+            // Use the values from the SoutenanceView or fallback
+            encadrant: details.encadrant || 'Non défini',
+            examinateur: details.examinateur || 'Non défini',
+            // Add binome members information
+            binomeEtudiant1: details.binomeEtudiant1,
+            binomeEtudiant2: details.binomeEtudiant2
+          };
         },
         error: (err) => {
           console.error('Error loading soutenance details', err);
@@ -435,79 +466,99 @@ export class GestionSoutenancesComponent implements OnInit {
     this.selectedSoutenance = null;
   }
 
-  getBinomeMembers(soutenance: any): string[] {
-    if (!soutenance || !soutenance.binome) return [];
+  getBinomeMembers(soutenance: SoutenanceView): string[] {
+    if (!soutenance) return [];
     
     const members = [];
     
-    if (soutenance.binome.etud1) {
-      members.push(this.getStudentName(soutenance.binome.etud1));
+    // First try to use the pre-formatted student names
+    if (soutenance.binomeEtudiant1) {
+      members.push(soutenance.binomeEtudiant1);
     }
     
-    if (soutenance.binome.etud2) {
-      members.push(this.getStudentName(soutenance.binome.etud2));
+    if (soutenance.binomeEtudiant2) {
+      members.push(soutenance.binomeEtudiant2);
+    }
+    
+    // If no pre-formatted names, try to extract from binome object
+    if (members.length === 0 && soutenance.binome) {
+      if (soutenance.binome.etud1) {
+        members.push(this.getStudentName(soutenance.binome.etud1));
+      }
+      
+      if (soutenance.binome.etud2) {
+        members.push(this.getStudentName(soutenance.binome.etud2));
+      }
     }
     
     return members;
   }
-
-  getEncadrant(soutenance: any): string {
-    if (!soutenance || !soutenance.jury) return 'Non défini';
+  
+  getEncadrant(soutenance: SoutenanceView): string {
+    if (!soutenance) return 'Non défini';
     
-    const encadrant = soutenance.jury.find((j: any) => 
-      j.role === JuryRole.RAPPORTEUR || j.role === 'RAPPORTEUR' || j.role === 'rapporteur'
-    );
+    // First check if encadrant is directly available from SoutenanceView
+    if (soutenance.encadrant && soutenance.encadrant !== 'Non assigné') {
+      return soutenance.encadrant;
+    }
     
-    if (!encadrant || !encadrant.enseignant) return 'Non défini';
+    // Handle case where jury might be an array
+    if (soutenance.jury && Array.isArray(soutenance.jury)) {
+      const encadrant = soutenance.jury.find((j: JurySoutenance) => 
+        j.role === JuryRole.ENCADRANT
+      );
+      
+      if (encadrant && encadrant.enseignant) {
+        return this.getEnseignantName(encadrant.enseignant);
+      }
+    }
     
-    const nom = encadrant.enseignant.nom || 
-               (encadrant.enseignant.utilisateur && encadrant.enseignant.utilisateur.nom);
-               
-    const prenom = encadrant.enseignant.prenom || 
-                  (encadrant.enseignant.utilisateur && encadrant.enseignant.utilisateur.prenom);
+    return 'Non défini';
+  }
+  
+  getExaminateur(soutenance: SoutenanceView): string {
+    if (!soutenance) return 'Non défini';
     
+    // First check if examinateur is directly available from SoutenanceView
+    if (soutenance.examinateur && soutenance.examinateur !== 'Non assigné') {
+      return soutenance.examinateur;
+    }
+    
+    // Handle case where jury might be an array
+    if (soutenance.jury && Array.isArray(soutenance.jury)) {
+      const examinateur = soutenance.jury.find((j: JurySoutenance) => 
+        j.role === JuryRole.EXAMINATEUR
+      );
+      
+      if (examinateur && examinateur.enseignant) {
+        return this.getEnseignantName(examinateur.enseignant);
+      }
+    }
+    
+    return 'Non défini';
+  }
+  
+  // Helper method to get teacher name considering different data structures
+  getEnseignantName(enseignant: any): string {
+    if (!enseignant) return 'Non défini';
+      
+    // Handle case where enseignant is just a string
+    if (typeof enseignant === 'string') {
+      return enseignant !== 'N/A' ? enseignant : 'Non défini';
+    }
+    
+    // Try to use fullName if available
+    if (enseignant.fullName) {
+      return enseignant.fullName;
+    }
+      
+    // Handle different possible property structures
+    const nom = enseignant.nom || 
+                (enseignant.utilisateur && enseignant.utilisateur.nom);
+                    
+    const prenom = enseignant.prenom || 
+                   (enseignant.utilisateur && enseignant.utilisateur.prenom);
+      
     return nom && prenom ? `${prenom} ${nom}` : 'Non défini';
-  }
-
-  getExaminateur(soutenance: any): string {
-    if (!soutenance || !soutenance.jury) return 'Non défini';
-    
-    const examinateur = soutenance.jury.find((j: any) => 
-      j.role === JuryRole.EXAMINATEUR || j.role === 'EXAMINATEUR' || j.role === 'examinateur'
-    );
-    
-    if (!examinateur || !examinateur.enseignant) return 'Non défini';
-    
-    const nom = examinateur.enseignant.nom || 
-               (examinateur.enseignant.utilisateur && examinateur.enseignant.utilisateur.nom);
-               
-    const prenom = examinateur.enseignant.prenom || 
-                  (examinateur.enseignant.utilisateur && examinateur.enseignant.utilisateur.prenom);
-    
-    return nom && prenom ? `${prenom} ${nom}` : 'Non défini';
-  }
-  
-  // Fixed method to get the rapporteur (which is the same as encadrant in this context)
-  getRapporteur(soutenance: any): string {
-    return this.getEncadrant(soutenance);
-  }
-  
-  // Get all rooms with their information for the table
-  getSallesInfo(): any[] {
-    return Object.keys(this.salleAllocations).map(salle => ({
-      numeroSalle: salle,
-      enseignant: this.salleAllocations[salle].enseignant,
-      dateSoutenance: this.salleAllocations[salle].date,
-      disponible: this.salleAllocations[salle].disponible ? 'Oui' : 'Non',
-      nombreBinomes: this.salleAllocations[salle].nombreBinomes
-    }));
-  }
-  
-  // Format date for display
-  formatDate(date: Date): string {
-    if (!date) return '';
-    return date instanceof Date ? 
-      date.toLocaleDateString() : 
-      new Date(date).toLocaleDateString();
   }
 }
