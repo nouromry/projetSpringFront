@@ -1,1 +1,247 @@
-<p>liste-des-choix works!</p>
+<div class="form-container">
+    <!-- Notification System -->
+    <div *ngIf="notification" class="notification" [class]="'notification-' + notification.type">
+      {{ notification.message }}
+    </div>
+  
+    <h2 class="form-title">Liste des choix</h2>
+  
+    <!-- Search and Filter -->
+    <div class="search-filter">
+      <div class="filter-dropdown">
+        <button class="filter-button" [matMenuTriggerFor]="statusMenu">Filtrer par statut</button>
+        <mat-menu #statusMenu="matMenu">
+          <button mat-menu-item (click)="filterByStatus('')">Tous les statuts</button>
+          <button mat-menu-item *ngFor="let status of statusOptions" (click)="filterByStatus(status)">
+            {{ status }}
+          </button>
+        </mat-menu>
+      </div>
+      
+      <div class="filter-dropdown">
+        <button class="filter-button" [matMenuTriggerFor]="filiereMenu">Filtrer par filière</button>
+        <mat-menu #filiereMenu="matMenu">
+          <button mat-menu-item (click)="filterByFiliere('')">Toutes les filières</button>
+          <button mat-menu-item *ngFor="let filiere of filiereOptions" (click)="filterByFiliere(filiere)">
+            {{ filiere }}
+          </button>
+        </mat-menu>
+      </div>
+      
+      <input type="text" class="search-input" placeholder="Rechercher un projet..." [(ngModel)]="searchText">
+    </div>
+  
+    <!-- Loading Indicator -->
+    <div *ngIf="isLoading" class="loading-spinner">
+      <div class="spinner"></div>
+    </div>
+  
+    <!-- Formulaire Section -->
+    <div class="form-card">
+      <div class="form-header">
+        <h3>Remplir le formulaire</h3>
+      </div>
+      
+      <div class="student-form">
+        <!-- Student 1 -->
+        <div class="student-section">
+          <h4 class="student-title">Étudiant 1</h4>
+          
+          <div class="form-row">
+            <div class="form-group search-group">
+              <span class="input-icon">🎓</span>
+              <input type="text" [(ngModel)]="etudiant1.matricule" placeholder="Matricule">
+              <button (click)="rechercherEtudiant(1)" class="search-button">
+                <span class="search-icon">🔍</span>
+              </button>
+            </div>
+          </div>
+  
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nom complet</label>
+              <div class="input-group">
+                <span class="input-icon">👤</span>
+                <input type="text" [value]="etudiant1.nom + ' ' + etudiant1.prenom" readonly>
+              </div>
+            </div>
+          </div>
+  
+          <div class="form-row double">
+            <div class="form-group">
+              <label>Moyenne</label>
+              <div class="input-group">
+                <span class="input-icon">📊</span>
+                <input type="text" [value]="etudiant1.moyenneGeneral" readonly>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>Filière</label>
+              <div class="input-group">
+                <span class="input-icon">📚</span>
+                <input type="text" [value]="etudiant1.filiere" readonly>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Student 2 -->
+        <div class="student-section">
+          <h4 class="student-title">Étudiant 2</h4>
+          
+          <div class="form-row">
+            <div class="form-group search-group">
+              <span class="input-icon">🎓</span>
+              <input type="text" [(ngModel)]="etudiant2.matricule" placeholder="Matricule">
+              <button (click)="rechercherEtudiant(2)" class="search-button">
+                <span class="search-icon">🔍</span>
+              </button>
+            </div>
+          </div>
+  
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nom complet</label>
+              <div class="input-group">
+                <span class="input-icon">👤</span>
+                <input type="text" [value]="etudiant2.nom + ' ' + etudiant2.prenom" readonly>
+              </div>
+            </div>
+          </div>
+  
+          <div class="form-row double">
+            <div class="form-group">
+              <label>Moyenne</label>
+              <div class="input-group">
+                <span class="input-icon">📊</span>
+                <input type="text" [value]="etudiant2.moyenneGeneral" readonly>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>Filière</label>
+              <div class="input-group">
+                <span class="input-icon">📚</span>
+                <input type="text" [value]="etudiant2.filiere" readonly>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- Create Binome Button -->
+      <div class="form-actions">
+        <button [disabled]="!etudiant1.matricule || !etudiant2.matricule" (click)="creerBinome()" class="submit-button">
+          <span class="button-icon">👥</span> Créer le Binôme
+        </button>
+      </div>
+  
+      <!-- Binome Created Notification -->
+      <div *ngIf="binome" class="success-message">
+        <span class="success-icon">✅</span>
+        <div>
+          <h4>Binôme créé avec succès!</h4>
+          <p>ID du binôme: <strong>{{ binome.id }}</strong></p>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Current Filters Display -->
+    <div class="active-filters" *ngIf="selectedFiliere || selectedStatus">
+      <h4>Filtres actifs:</h4>
+      <div class="filter-tags">
+        <div *ngIf="selectedFiliere" class="filter-tag">
+          Filière: {{ selectedFiliere }}
+          <button class="remove-filter" (click)="filterByFiliere('')">×</button>
+        </div>
+        <div *ngIf="selectedStatus" class="filter-tag">
+          Statut: {{ selectedStatus }}
+          <button class="remove-filter" (click)="filterByStatus('')">×</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Project Selection Section -->
+  <div class="project-selection">
+    <div class="selection-header">
+      <h3>Gestion des projets</h3>
+      <p>Sélectionnez jusqu'à 10 projets par ordre de préférence:</p>
+    </div>
+    
+    <div class="selection-body">
+      <!-- Available Projects -->
+      <div class="available-projects">
+        <h4>Projets Disponibles</h4>
+        
+        <div class="project-list">
+          <div *ngFor="let projet of projetsFiltres" class="project-card">
+            <div class="project-info">
+              <h5>{{ projet.titre }}</h5>
+              <p *ngIf="projet.description" class="project-description">{{ projet.description }}</p>
+              <p *ngIf="projet.technologies" class="project-tech">
+                <span class="tech-label">Technologies:</span> {{ projet.technologies }}
+              </p>
+              
+            </div>
+            <button class="add-button" (click)="ajouterProjet(projet)">
+              <span class="button-icon">+</span> Ajouter
+            </button>
+          </div>
+          
+          <div *ngIf="projetsFiltres.length === 0" class="empty-message">
+            Aucun projet disponible pour les filtres sélectionnés.
+          </div>
+        </div>
+      </div>
+  
+      <!-- Selected Projects -->
+      <div class="selected-projects">
+        <h4>Mes Choix de Projets</h4>
+        
+        <div *ngIf="projetSelectionnes.length > 0" class="project-table">
+          <div class="table-header">
+            <div class="header-cell">Priorité</div>
+            <div class="header-cell">Titre de projet</div>
+            <div class="header-cell actions-cell">Actions</div>
+          </div>
+          
+          <div class="table-body">
+            <div *ngFor="let projet of projetSelectionnes; let i = index" class="table-row">
+              <div class="table-cell priority-cell">{{ i + 1 }}</div>
+              <div class="table-cell">{{ projet.titre }}</div>
+              <div class="table-cell actions-cell">
+                <div class="action-buttons">
+                  <button [disabled]="i === 0" (click)="monterProjet(i)" class="action-button move-up">
+                    <span class="action-icon">↑</span>
+                  </button>
+                  <button [disabled]="i === projetSelectionnes.length - 1" (click)="descendreProjet(i)" class="action-button move-down">
+                    <span class="action-icon">↓</span>
+                  </button>
+                  <button (click)="supprimerProjet(i)" class="action-button delete">
+                    <span class="action-icon">×</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div *ngIf="projetSelectionnes.length === 0" class="empty-message">
+          Aucun projet sélectionné. Ajoutez des projets à partir de la liste des projets disponibles.
+        </div>
+  
+        <!-- Validation Button -->
+        <div class="validation-section">
+          <button 
+            [disabled]="projetSelectionnes.length === 0 || !binome" 
+            (click)="validerChoix()" 
+            class="validate-button"
+          >
+            <span class="button-icon">✓</span> Valider vos choix
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>

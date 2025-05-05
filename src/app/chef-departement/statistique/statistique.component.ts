@@ -1,7 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { ProjetService } from 'src/app/services/projet.service';
 import { EnseignantService } from 'src/app/services/enseignant.service';
-import { SoutenanceService } from 'src/app/services/soutenance.service';
 import { BinomeService } from 'src/app/services/binome.service';
 import { DocumentService } from 'src/app/services/document.service';
 import { Chart, registerables } from 'chart.js';
@@ -20,20 +19,17 @@ export class StatistiqueComponent implements OnInit, AfterViewInit {
   @ViewChild('enseignantProjetChart') enseignantProjetChartRef!: ElementRef;
   @ViewChild('filiereDistributionChart') filiereDistributionChartRef!: ElementRef;
   @ViewChild('moyenneBinomeChart') moyenneBinomeChartRef!: ElementRef;
-  @ViewChild('soutenanceTimelineChart') soutenanceTimelineChartRef!: ElementRef;
 
   // Data variables
   projetsParEtat: { [key: string]: number } = {};
   projetsParEnseignant: { enseignant: string, count: number }[] = [];
   projetsParFiliere: { [key: string]: number } = {};
   binomesParMoyenne: { binome: string, moyenne: number }[] = [];
-  soutenancesParMois: number[] = Array(12).fill(0);
 
   // Summary statistics
   totalProjets: number = 0;
   totalEnseignants: number = 0;
   totalBinomes: number = 0;
-  totalSoutenances: number = 0;
   totalDocuments: number = 0;
   moyenneGenerale: number = 0;
   tauxValidation: number = 0;
@@ -45,7 +41,6 @@ export class StatistiqueComponent implements OnInit, AfterViewInit {
   constructor(
     private projetService: ProjetService,
     private enseignantService: EnseignantService,
-    private soutenanceService: SoutenanceService,
     private binomeService: BinomeService,
     private documentService: DocumentService
   ) { }
@@ -125,34 +120,19 @@ export class StatistiqueComponent implements OnInit, AfterViewInit {
                   this.moyenneGenerale = total / this.binomesParMoyenne.length;
                 }
 
-                // Load defenses data
-                this.soutenanceService.getAllSoutenances().subscribe({
-                  next: (soutenances) => {
-                    this.totalSoutenances = soutenances.length;
+                // Load documents data
+                this.documentService.getAllDocuments().subscribe({
+                  next: (documents) => {
+                    this.totalDocuments = documents.length;
+                    this.isLoading = false;
                     
-                    // Count defenses by month
-                    soutenances.forEach(soutenance => {
-                      const date = new Date(soutenance.dateSoutenance);
-                      const month = date.getMonth();
-                      this.soutenancesParMois[month]++;
-                    });
-
-                    // Load documents data
-                    this.documentService.getAllDocuments().subscribe({
-                      next: (documents) => {
-                        this.totalDocuments = documents.length;
-                        this.isLoading = false;
-                        
-                        // Initialize charts after data is loaded
-                        setTimeout(() => {
-                          this.initializeCharts();
-                          this.chartsInitialized = true;
-                        }, 100);
-                      },
-                      error: (err) => console.error('Error loading documents:', err)
-                    });
+                    // Initialize charts after data is loaded
+                    setTimeout(() => {
+                      this.initializeCharts();
+                      this.chartsInitialized = true;
+                    }, 100);
                   },
-                  error: (err) => console.error('Error loading defenses:', err)
+                  error: (err) => console.error('Error loading documents:', err)
                 });
               },
               error: (err) => console.error('Error loading binomes:', err)
@@ -170,7 +150,6 @@ export class StatistiqueComponent implements OnInit, AfterViewInit {
     this.createEnseignantProjetChart();
     this.createFiliereDistributionChart();
     this.createMoyenneBinomeChart();
-    this.createSoutenanceTimelineChart();
   }
 
   createProjetStatusChart(): void {
@@ -303,41 +282,6 @@ export class StatistiqueComponent implements OnInit, AfterViewInit {
           y: {
             beginAtZero: true,
             max: 20
-          }
-        }
-      }
-    });
-  }
-
-  createSoutenanceTimelineChart(): void {
-    const ctx = this.soutenanceTimelineChartRef.nativeElement.getContext('2d');
-    const monthLabels = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
-    
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: monthLabels,
-        datasets: [{
-          label: 'Soutenances',
-          data: this.soutenancesParMois,
-          fill: true,
-          backgroundColor: 'rgba(255, 99, 132, 0.2)',
-          borderColor: 'rgba(255, 99, 132, 1)',
-          borderWidth: 1,
-          tension: 0.4
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          title: {
-            display: true,
-            text: 'Soutenances par Mois'
-          }
-        },
-        scales: {
-          y: {
-            beginAtZero: true
           }
         }
       }

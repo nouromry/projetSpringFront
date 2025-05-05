@@ -12,6 +12,7 @@ export interface User {
   email: string;
   password: string | null;
   role: 'etudiant' | 'enseignant' | 'chefDep';
+  binomeId?: number;
 }
 
 @Injectable({
@@ -57,5 +58,14 @@ export class AuthService {
 
   getRole(): string | null {
     return this.currentUserValue ? this.currentUserValue.role : null;
+  }
+  getUserBinomeId(): number | null {
+    // Check if user exists, is a student, and return binomeId if available
+    if (this.currentUserValue && 
+        this.currentUserValue.role === 'etudiant' && 
+        this.currentUserValue.binomeId) {
+      return this.currentUserValue.binomeId;
+    }
+    return null;
   }
 }

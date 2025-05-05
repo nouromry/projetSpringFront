@@ -1,1 +1,205 @@
-<p>espace-affichage works!</p>
+<div class="soutenance-container">
+    <div class="header">
+      <div class="logo">
+        <span class="logo-text"
+          >EN1<span class="logo-carthage">CARTHAGE</span></span
+        >
+      </div>
+      <div class="user-info">
+        <span class="user-role">Étudiant</span>
+      </div>
+    </div>
+  
+    <div class="content-area">
+      <!-- Loading States -->
+      <div class="loading-container" *ngIf="loadingProjet || loadingSoutenance">
+        <div class="spinner"></div>
+        <p *ngIf="loadingProjet && loadingSoutenance">
+          Chargement des informations...
+        </p>
+        <p *ngIf="loadingProjet && !loadingSoutenance">Chargement du projet...</p>
+        <p *ngIf="!loadingProjet && loadingSoutenance">
+          Chargement de la soutenance...
+        </p>
+      </div>
+  
+      <!-- Error States -->
+      <div class="error-container" *ngIf="projetError || soutenanceError">
+        <p *ngIf="projetError && soutenanceError">
+          Une erreur est survenue lors du chargement des informations. Veuillez
+          réessayer plus tard.
+        </p>
+        <p *ngIf="projetError && !soutenanceError">
+          Une erreur est survenue lors du chargement du projet. Veuillez réessayer
+          plus tard.
+        </p>
+        <p *ngIf="!projetError && soutenanceError">
+          Une erreur est survenue lors du chargement de la soutenance. Veuillez
+          réessayer plus tard.
+        </p>
+        <p *ngIf="errorMessage">{{ errorMessage }}</p>
+      </div>
+  
+      <!-- Project and Soutenance Details -->
+      <div
+        class="soutenance-details"
+        *ngIf="
+          !loadingProjet &&
+          !loadingSoutenance &&
+          !projetError &&
+          (projetInfo || soutenanceInfo)
+        "
+      >
+        <div class="card">
+          <div class="card-header">
+            <h2>Détails de projet PFA</h2>
+          </div>
+          <div class="card-body">
+            <!-- Project information -->
+            <div class="form-group">
+              <label>Titre de projet:</label>
+              <div class="form-control">
+                {{
+                  projetInfo?.titre || soutenanceInfo?.projetTitre || "Non défini"
+                }}
+              </div>
+            </div>
+  
+            <div
+              class="form-group"
+              *ngIf="projetInfo?.description || soutenanceInfo?.projetDescription"
+            >
+              <label>Description:</label>
+              <div class="form-control description">
+                {{ projetInfo?.description || soutenanceInfo?.projetDescription }}
+              </div>
+            </div>
+  
+            <div
+              class="form-group"
+              *ngIf="
+                projetInfo?.technologies || soutenanceInfo?.projetTechnologies
+              "
+            >
+              <label>Technologies:</label>
+              <div class="form-control">
+                {{
+                  projetInfo?.technologies || soutenanceInfo?.projetTechnologies
+                }}
+              </div>
+            </div>
+  
+            <!-- Supervisor information -->
+            <div
+              class="form-group"
+              *ngIf="soutenanceInfo?.enseignants || soutenanceInfo?.encadrant"
+            >
+              <label>Encadré par:</label>
+              <div class="form-control">
+                {{
+                  soutenanceInfo?.enseignants ||
+                    (soutenanceInfo?.encadrant !== "Non assigné"
+                      ? soutenanceInfo?.encadrant
+                      : "Non défini")
+                }}
+              </div>
+            </div>
+  
+            <!-- Group members information -->
+            <div
+              class="form-group"
+              *ngIf="
+                soutenanceInfo?.binomeEtudiant1 || soutenanceInfo?.binomeEtudiant2
+              "
+            >
+              <label>Membres du groupe:</label>
+              <div class="form-control">
+                {{ soutenanceInfo?.binomeEtudiant1 || "" }}
+                <span *ngIf="soutenanceInfo?.binomeEtudiant2"
+                  >, {{ soutenanceInfo?.binomeEtudiant2 }}</span
+                >
+              </div>
+            </div>
+  
+            <!-- Soutenance information - visible only if planned -->
+            <div
+              class="soutenance-info"
+              *ngIf="soutenanceInfo && isSoutenancePlanned"
+            >
+              <h3>Information de Soutenance</h3>
+  
+              <div class="form-group">
+                <label>Date de soutenance:</label>
+                <div class="form-control">
+                  {{ soutenanceInfo?.dateSoutenance }}
+                </div>
+              </div>
+  
+              <div class="form-group">
+                <label>Heure:</label>
+                <div class="form-control">{{ soutenanceInfo?.heureDebut }}</div>
+              </div>
+  
+              <div class="form-group">
+                <label>Salle:</label>
+                <div class="form-control">{{ soutenanceInfo?.salle }}</div>
+              </div>
+  
+              <div class="form-group" *ngIf="soutenanceInfo?.juryMembers">
+                <label>Les membres de jury:</label>
+                <div class="jury-members">
+                  <div
+                    class="jury-member"
+                    *ngFor="let member of soutenanceInfo?.juryMembers"
+                  >
+                    <span
+                      >{{
+                        member.fullName || member.nomComplet || "Enseignant"
+                      }}
+                      - {{ member.role }}</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+  
+            <!-- Message when soutenance is not planned yet -->
+            <div
+              class="soutenance-not-set"
+              *ngIf="soutenanceInfo && !isSoutenancePlanned"
+            >
+              <p class="notice">
+                La date de soutenance n'a pas encore été fixée par le chef de
+                département.
+              </p>
+            </div>
+  
+            <!-- Message when there's no soutenance info -->
+            <div
+              class="soutenance-not-set"
+              *ngIf="!soutenanceInfo && !soutenanceError"
+            >
+              <p class="notice">
+                Aucune soutenance n'a encore été créée pour ce projet.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+      <!-- No Data State -->
+      <div
+        class="no-data-container"
+        *ngIf="
+          !loadingProjet &&
+          !loadingSoutenance &&
+          !projetError &&
+          !soutenanceError &&
+          !projetInfo &&
+          !soutenanceInfo
+        "
+      >
+        <p>Aucune information disponible pour le moment.</p>
+      </div>
+    </div>
+  </div>

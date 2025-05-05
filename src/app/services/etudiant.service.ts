@@ -9,6 +9,7 @@ import { Etudiant } from '../models/etudiant.model';
 })
 export class EtudiantService {
   private baseUrl = 'http://localhost:8081/api/etudiants';
+  private apiUrl = 'http://localhost:8081/api/etudiants'; // Adjust this URL based on your backend configuration
 
   constructor(private http: HttpClient) { }
 
@@ -44,4 +45,29 @@ export class EtudiantService {
       { withCredentials: true }
     );
   }
+   /**
+   * Get a student by their matricule
+   */
+   getEtudiantByMatricule(matricule: string): Observable<Etudiant> {
+    return this.http.get<Etudiant>(`${this.apiUrl}/matricule/${matricule}`);
+  }
+  
+  /**
+   * Get a student by ID
+   */
+  getEtudiantById(id: number): Observable<Etudiant> {
+    return this.http.get<Etudiant>(`${this.apiUrl}/${id}`);
+  }
+  
+  /**
+   * Create or update a student
+   */
+  saveEtudiant(etudiant: Etudiant): Observable<Etudiant> {
+    if (etudiant.id) {
+      return this.http.put<Etudiant>(`${this.apiUrl}/${etudiant.id}`, etudiant);
+    } else {
+      return this.http.post<Etudiant>(this.apiUrl, etudiant);
+    }
+  }
+  
 }
