@@ -4,7 +4,7 @@ import { Projet } from './projet.model';
 export interface Commentaire {
   id: number;
   contenu: string;
-  dateCommentaire: string; // ISO date string
+  dateCommentaire: Date; // ISO date string
   auteur: Utilisateur;
   projet: Projet;
 }

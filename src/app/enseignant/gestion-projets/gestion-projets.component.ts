@@ -4,6 +4,7 @@ import { Projet } from 'src/app/models/projet.model';
 import { ProjetService } from 'src/app/services/projet.service';
 import { Enseignant } from 'src/app/models/enseignant.model'; 
 import { EnseignantService } from 'src/app/services/enseignant.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-gestion-projets',
@@ -26,18 +27,20 @@ export class GestionProjetsComponent implements OnInit {
   filiereFilter: string = 'tous';
   private searchTimeout: any;
   role: string = 'Chef de département';
+  currentUser: any;
 
   constructor(
     private projetService: ProjetService,
     private enseignantService: EnseignantService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
+    this.currentUser = this.authService.currentUserValue;
     this.role = user?.role || 'Invité';
     this.loadProjets();
-    this.loadEnseignants();
     this.initForm();
   }
 
@@ -49,11 +52,7 @@ export class GestionProjetsComponent implements OnInit {
     });
   }
 
-  loadEnseignants(): void {
-    this.enseignantService.getAllEnseignants().subscribe(data => {
-      this.enseignants = data;
-    });
-  }
+
 
   initForm(): void {
     this.projetForm = this.fb.group({
@@ -61,7 +60,6 @@ export class GestionProjetsComponent implements OnInit {
       description: ['', Validators.required],
       technologies: ['', Validators.required],
       filiere: ['', Validators.required],
-      enseignant: [null, Validators.required]
     });
   }
 
@@ -72,47 +70,44 @@ export class GestionProjetsComponent implements OnInit {
     }
   }
 
+
   onSubmitProjet(): void {
-  if (this.projetForm.invalid) {
-    return;
+    if (this.projetForm.invalid || !this.currentUser?.id) return;
+
+    const formValue = this.projetForm.value;
+    const today = new Date().toISOString().split('T')[0];
+    
+    const projectData = {
+      titre: formValue.titre,
+      description: formValue.description,
+      technologies: formValue.technologies,
+      etat: 'EN_ATTENTE', // Default status
+      dateDepot: today,
+      filiere: formValue.filiere
+    };
+
+    this.enseignantService.createProject(this.currentUser.id, projectData).subscribe({
+      next: (createdProjet) => {
+        this.projets.unshift(createdProjet); // Add new project at beginning
+        this.toggleAddForm();
+      },
+      error: (error) => {
+        console.error('Failed to create project:', error);
+        // Add error handling UI feedback
+      }
+    });
   }
 
-  const formValue = this.projetForm.value;
-  const today = new Date().toISOString().split('T')[0];
-  
-  // Créer l'objet avec uniquement l'ID de l'enseignant si c'est ce que le backend attend
-  const payload = {
-    titre: formValue.titre,
-    description: formValue.description,
-    technologies: formValue.technologies,
-    etat: 'EN_ATTENTE',
-    dateDepot: today,
-    dateAffectation: "",
-    filiere: formValue.filiere,
-    enseignant: { id: formValue.enseignant.id }  // Envoi uniquement de l'ID de l'enseignant
-  };
-
-  this.projetService.createProjet(payload as Projet).subscribe({
-    next: (createdProjet) => {
-      this.loadProjets();
-      this.toggleAddForm();
-    },
-    error: (error) => {
-      console.error('Failed to create project:', error);
-    }
-  });
-}
-
-  // Rest of your component code remains the same
+  // Rest of your component code remains unchanged
   groupByEncadrant(projets: Projet[]): { [key: string]: Projet[] } {
     return projets.reduce((acc, projet) => {
-      const enseignantNom = projet.enseignant.nom; // Utiliser le nom de l'enseignant pour regrouper
+      const enseignantNom = projet.enseignant.nom;
       if (!acc[enseignantNom]) {
         acc[enseignantNom] = [];
       }
-      acc[enseignantNom].push(projet); // Utiliser enseignantNom et non enseignant.nom
+      acc[enseignantNom].push(projet);
       return acc;
-    }, {} as { [key: string]: Projet[] }); // Spécifier le type de `acc`
+    }, {} as { [key: string]: Projet[] });
   }
   
   objectKeys(obj: { [key: string]: any }): string[] {
@@ -122,13 +117,13 @@ export class GestionProjetsComponent implements OnInit {
   switchTab(tab: string): void {
     this.activeTab = tab;
     this.showDetail = false;
-    this.showAddForm = false; // Close add form when switching tabs
+    this.showAddForm = false;
     if (tab === 'validation') {
       this.filterByStatus('tous');
     } else if (tab === 'liste') {
       const projetsValides = this.projets.filter(p => p.etat.toUpperCase() === 'VALIDE');
       this.groupedProjets = this.groupByEncadrant(projetsValides);
-      this.filterProjets(); // pour appliquer le filtre par filière
+      this.filterProjets();
     }
   }
 
@@ -137,7 +132,6 @@ export class GestionProjetsComponent implements OnInit {
     if (status === 'tous') {
       this.filteredProjets = [...this.projets];
     } else {
-      // Convert the status for comparison
       const compareStatus = status.toUpperCase();
       this.filteredProjets = this.projets.filter(projet => 
         projet.etat.toUpperCase() === compareStatus

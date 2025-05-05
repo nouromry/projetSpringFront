@@ -5,9 +5,7 @@ import { PlanningSoutenancesComponent } from './planning-soutenances/planning-so
 import { ListeBinomesComponent } from './liste-binomes/liste-binomes.component';
 import { GestionProjetsComponent } from './gestion-projets/gestion-projets.component';
 import { DocumentsAssociesComponent } from './documents-associes/documents-associes.component';
-
-import { EspaceEchangeComponent } from './espace-echange/espace-echange.component';  // Add this import
-
+import { EspaceEchangeComponent } from './espace-echange/espace-echange.component';
 
 const routes: Routes = [{ path: '', component: EnseignantComponent, children: [
       {
@@ -32,9 +30,9 @@ const routes: Routes = [{ path: '', component: EnseignantComponent, children: [
         component:  PlanningSoutenancesComponent,
       },
       {
-        path: 'espace',
+        path: 'echangeEspace',
         component:  EspaceEchangeComponent,
-      }
+      },
     ],
    }];
 

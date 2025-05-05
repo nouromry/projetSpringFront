@@ -11,6 +11,7 @@ import { SharedModule } from '../shared/shared.module';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { EspaceEchangeComponent } from './espace-echange/espace-echange.component';  // Add this import
 import { HttpClientModule } from '@angular/common/http';
+import { EchangeComponent } from './echange/echange.component';
 
 @NgModule({
   declarations: [
@@ -19,7 +20,8 @@ import { HttpClientModule } from '@angular/common/http';
     ListeBinomesComponent,
     GestionProjetsComponent,
     DocumentsAssociesComponent,
-    EspaceEchangeComponent
+    EspaceEchangeComponent,
+    EchangeComponent
   ],
   imports: [
     CommonModule,

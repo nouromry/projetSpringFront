@@ -1,113 +1,75 @@
-<!-- liste-binomes.component.html -->
 <div class="container">
-    <div class="filters-row">
-      <div class="filter-dropdown">
-        <span>Trier:</span>
-        <div class="dropdown">
-          <button class="dropdown-toggle">
-            {{ filterType }}
-            <i class="arrow-down"></i>
-          </button>
-        </div>
-      </div>
-      <div class="search-bar">
-        <div class="search-icon">
-          <i class="search-icon-inner"></i>
-        </div>
-        <input 
-          type="text" 
-          placeholder="rechercher un étudiant..." 
-          [(ngModel)]="searchTerm" 
-          (input)="searchStudent()"
-        >
+  <!-- Filter and search section -->
+  <div class="filter-search-container">
+    <div class="filter-dropdown">
+      <span>Trier:</span>
+      <div class="dropdown">
+        <select [(ngModel)]="selectedFiliere" (change)="onFiliereChange(selectedFiliere)">
+          <option value="">par filière</option>
+          <option *ngFor="let filiere of filieres" [value]="filiere">{{ filiere }}</option>
+        </select>
       </div>
     </div>
-  
-    <div class="table-container">
-      <table class="projects-table">
-        <thead>
-          <tr>
-            <th class="binome-column">Binome</th>
-            <th class="projet-column">projet</th>
-            <th class="etudiant-column">Etudiant</th>
-            <th class="groupe-column">Groupe</th>
-            <th class="filiere-column">Filière</th>
-            <th class="espace-column">espace d'échange</th>
-          </tr>
-        </thead>
-        <tbody>
-          <ng-container *ngFor="let projectId of getUniqueProjectIds()">
-            <ng-container *ngFor="let student of getStudentsByProjectId(projectId); let i = index">
-              <tr>
-                <!-- Show project number only for first student in project -->
-                <td *ngIf="i === 0" [attr.rowspan]="getStudentsByProjectId(projectId).length" class="project-number">
-                  {{ projectId }}
-                </td>
-                <td *ngIf="i === 0" [attr.rowspan]="getStudentsByProjectId(projectId).length" class="project-label">
-                  PROJET
-                </td>
-                <td class="student-name">{{ student.name }}</td>
-                <td class="group-cell">{{ student.group }}</td>
-                <td class="major-cell">{{ projectId <= 4 ? 'Mecal' : 'mecal' }}</td>
-                <td class="chat-cell">
-                  <div class="chat-icon" (click)="openChatSpace(student, projectId)">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M20 4H4C2.9 4 2 4.9 2 6V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4Z" stroke="#5B93FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      <path d="M8 12H16M8 16H12" stroke="#5B93FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                  </div>
-                </td>
-              </tr>
-            </ng-container>
+    
+    <div class="search-input">
+      <input 
+        type="search" 
+        [(ngModel)]="searchTerm" 
+        (input)="onSearchChange()"
+        placeholder="rechercher par projet..."
+      />
+      <span class="search-icon">🔍</span>
+    </div>
+  </div>
+
+  <!-- Loading spinner -->
+  <div class="loading-spinner" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Chargement des projets...</p>
+  </div>
+
+  <!-- Error message -->
+  <div class="error-alert" *ngIf="errorMessage">
+    <p>{{ errorMessage }}</p>
+  </div>
+
+  <!-- Table of binomes -->
+  <div class="table-container" *ngIf="!isLoading && !errorMessage">
+    <table class="binomes-table">
+      <thead>
+        <tr>
+          <th class="binome-column">Binome</th>
+          <th class="projet-column">projet</th>
+          <th class="etudiant-column">Etudiant</th>
+          <th class="groupe-column">Groupe</th>
+          <th class="filiere-column">Filiere</th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngFor="let projet of filteredProjets">
+          <ng-container *ngIf="projet.binomeAffecte">
+            <tr>
+              <td class="binome-number" [attr.rowspan]="2">{{ projet.id }}</td>
+              <td class="projet-text" [attr.rowspan]="2">{{ projet.titre}}</td>
+              <td class="etudiant-name">{{ projet.binomeAffecte.etud1.nom }} {{ projet.binomeAffecte.etud1.prenom }}</td>
+              <td class="groupe-letter">{{ projet.binomeAffecte.etud1.groupe }}</td>
+              <td class="filiere-name">{{ projet.filiere }}</td>
+            </tr>
+            <tr>
+              <td class="etudiant-name">{{ projet.binomeAffecte.etud2.nom }} {{ projet.binomeAffecte.etud2.prenom }}</td>
+              <td class="groupe-letter">{{ projet.binomeAffecte.etud2.groupe }}</td>
+              <td class="filiere-name">{{ projet.filiere }}</td>
+            </tr>
           </ng-container>
-        </tbody>
-      </table>
-    </div>
+        </ng-container>
+        
+        <!-- No results message -->
+        <tr *ngIf="filteredProjets.length === 0">
+          <td colspan="5" class="no-results">
+            Aucun projet trouvé avec les critères sélectionnés
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
-  
-  <!-- Chat Modal -->
-  <div class="chat-modal-overlay" *ngIf="showChatModal" (click)="closeChatModal()">
-    <div class="chat-modal-container" (click)="$event.stopPropagation()">
-      <div class="chat-modal-header">
-        <h3>{{ projectTitle }}</h3>
-      </div>
-      
-      <div class="chat-messages-container">
-        
-        
-        <!-- Message threads -->
-        <div class="message-threads">
-          <div class="message-thread" *ngFor="let msg of chatMessages; let i = index; let isFirst = first">
-            <!-- Only show the avatar for the first message in thread -->
-            <div class="thread-avatar" *ngIf="isFirst || chatMessages[i-1].role !== msg.role">
-              <img 
-                [src]="msg.role === 'teacher' ? 'assets/user.png' : 'assets/user.png'" 
-                [alt]="msg.sender"
-                class="avatar-image"
-              />
-              <div class="user-name">{{ msg.sender }}</div>
-            </div>
-            
-            <div class="message-content" [class.student-message]="msg.role === 'student'" [class.teacher-message]="msg.role === 'teacher'">
-              {{ msg.content }}
-            </div>
-          </div>
-        </div>
-        
-        <!-- New message input -->
-        <div class="new-message-input">
-          <input 
-            type="text" 
-            [(ngModel)]="newMessage" 
-            placeholder="Écrivez un message..." 
-            (keyup.enter)="sendMessage()"
-          />
-          <button class="send-button" (click)="sendMessage()">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M22 2L11 13M22 2L15 22L11 13M11 13L2 9" stroke="#5B93FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+</div>

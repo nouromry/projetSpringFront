@@ -1,1 +1,114 @@
-<p>espace-echange works!</p>
+<div class="espace-echange-container">
+  <!-- Header -->
+  <div class="header">
+    <h1 class="title">Espace d'Échange Pédagogique</h1>
+    <div class="user-info">
+      <span class="user-name">{{ currentUser?.prenom }} {{ currentUser?.nom }}</span>
+      <span class="user-role">Enseignant</span>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Projects Sidebar -->
+    <div class="projects-sidebar">
+      <div class="sidebar-header">
+        <h2>Mes Projets Encadrés</h2>
+        <div class="search-box">
+          <input 
+            type="text" 
+            placeholder="Rechercher un projet..." 
+            [(ngModel)]="searchTerm"
+            (input)="filterProjects()"
+          >
+          <i class="fas fa-search"></i>
+        </div>
+      </div>
+      
+      <div class="projects-list">
+        <div *ngFor="let projet of projets" 
+             class="project-item" 
+             [class.active]="selectedProjet?.id === projet.id"
+             (click)="selectProjet(projet)">
+          <div class="project-title">{{ projet.titre }}</div>
+          <div class="project-meta">
+            <span class="project-state">{{ projet.etat }}</span>
+            <span class="project-date">{{ projet.dateDepot | date:'dd/MM/yyyy' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Discussion Area -->
+    <div class="discussion-area" *ngIf="selectedProjet">
+      <div class="discussion-header">
+        <h2>{{ selectedProjet.titre }}</h2>
+        <div class="project-info">
+          <span class="info-item">
+            <i class="fas fa-user-graduate"></i> 
+            Binôme: {{ getBinomeNames(selectedProjet) }}
+          </span>
+          <span class="info-item">
+            <i class="fas fa-calendar-alt"></i> 
+            Dépôt: {{ selectedProjet.dateDepot | date:'dd/MM/yyyy' }}
+          </span>
+        </div>
+      </div>
+
+      <div class="comments-section">
+        <div *ngIf="isLoading && comments.length === 0" class="loading-indicator">
+          <i class="fas fa-spinner fa-spin"></i> Chargement des commentaires...
+        </div>
+    
+        <div *ngIf="!isLoading && comments.length === 0" class="no-comments">
+          Aucun commentaire pour ce projet. Soyez le premier à commenter !
+        </div>
+    
+        <div class="comments-list">
+          <div *ngFor="let comment of displayedComments" class="comment-item">
+            <div class="comment-avatar">
+              <i class="fas" 
+                 [class.fa-user-graduate]="comment.auteur.role === 'etudiant'"
+                 [class.fa-chalkboard-teacher]="comment.auteur.role === 'enseignant'"></i>
+            </div>
+            <div class="comment-content">
+              <div class="comment-header">
+                <span class="comment-author">{{ comment.auteur.prenom }} {{ comment.auteur.nom }}</span>
+                <span class="comment-date">{{ comment.dateCommentaire | date:'dd/MM/yyyy à HH:mm' }}</span>
+              </div>
+              <div class="comment-text">{{ comment.contenu }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- New Comment Form -->
+      <div class="new-comment">
+        <textarea [(ngModel)]="newComment" 
+                  placeholder="Écrivez votre commentaire ici..." 
+                  [disabled]="isLoading"></textarea>
+        <button (click)="postComment()" 
+                [disabled]="!newComment.trim() || isLoading"
+                class="send-button">
+          <span *ngIf="!isLoading">Envoyer</span>
+          <i *ngIf="isLoading" class="fas fa-spinner fa-spin"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!selectedProjet && !isLoading" class="empty-state">
+      <i class="fas fa-comments"></i>
+      <h3>Sélectionnez un projet pour voir les échanges</h3>
+      <p>Choisissez un projet dans la liste à gauche pour afficher les discussions correspondantes.</p>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+    <button (click)="errorMessage = ''" class="close-button">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+</div>

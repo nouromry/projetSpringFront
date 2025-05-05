@@ -1,1 +1,52 @@
-<p>planning-soutenances works!</p>
+<div class="container">
+    <h2>Mes Soutenances</h2>
+  
+    <div *ngIf="isLoading" class="loading">
+      <div class="spinner"></div>
+      <p>Chargement en cours...</p>
+    </div>
+  
+    <div *ngIf="errorMessage" class="error">
+      {{ errorMessage }}
+    </div>
+  
+    <div *ngIf="!isLoading && soutenances.length === 0" class="no-soutenances">
+      Aucune soutenance programmée
+    </div>
+  
+    <div *ngIf="!isLoading && soutenances.length > 0" class="soutenances-list">
+      <div *ngFor="let soutenance of soutenances" class="soutenance-card">
+        <div class="soutenance-header">
+          <h3>Soutenance #{{ soutenance.id }}</h3>
+          <span class="role-badge">{{ soutenance.role }}</span>
+        </div>
+        
+        <div class="soutenance-details">
+          <p><strong>Date:</strong> {{ soutenance.date | date:'dd/MM/yyyy' }}</p>
+          <p><strong>Heure:</strong> {{ soutenance.heureD }}</p>
+          <p><strong>Salle:</strong> {{ soutenance.salle }}</p>
+        </div>
+        
+        <div class="binome-info">
+          <h4>Binôme</h4>
+          <p>{{ getEtudiantNames(soutenance.binome) }}</p>
+          
+          <div class="etudiants">
+            <div class="etudiant">
+              <h5>Étudiant 1</h5>
+              <p>{{ soutenance.binome.etud1.prenom }} {{ soutenance.binome.etud1.nom }}</p>
+              <p>Matricule: {{ soutenance.binome.etud1.matricule }}</p>
+              <p>Groupe: {{ soutenance.binome.etud1.groupe }}</p>
+            </div>
+            
+            <div class="etudiant">
+              <h5>Étudiant 2</h5>
+              <p>{{ soutenance.binome.etud2.prenom }} {{ soutenance.binome.etud2.nom }}</p>
+              <p>Matricule: {{ soutenance.binome.etud2.matricule }}</p>
+              <p>Groupe: {{ soutenance.binome.etud2.groupe }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

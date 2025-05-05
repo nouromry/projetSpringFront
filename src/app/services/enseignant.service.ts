@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Enseignant } from '../models/enseignant.model';
-import { environment } from '../../environments/environment';
 
+import { environment } from '../../environments/environment';
+import { Projet } from '../models/projet.model';
+import { Enseignant } from '../models/enseignant.model';
 @Injectable({
   providedIn: 'root'
 })
@@ -49,5 +50,17 @@ export class EnseignantService {
 
   getEnseignantsAvailableForJury(date: string, timeSlot: string): Observable<Enseignant[]> {
     return this.http.get<Enseignant[]>(`${this.apiUrl}/available?date=${date}&timeSlot=${timeSlot}`);
+  }
+ 
+  createProject(enseignantId: number, projectData: any): Observable<Projet> {
+    return this.http.post<Projet>(
+      `${this.apiUrl}/${enseignantId}/projets`,
+      projectData,
+      { headers: { 'Content-Type': 'application/json' } }
+    );
+  }
+
+  getEnseignantProjects(enseignantId: number): Observable<Projet[]> {
+    return this.http.get<Projet[]>(`${this.apiUrl}/${enseignantId}/projets`);
   }
 }

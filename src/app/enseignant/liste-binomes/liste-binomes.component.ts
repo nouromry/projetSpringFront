@@ -1,22 +1,42 @@
-// liste-binomes.component.ts
 import { Component, OnInit } from '@angular/core';
+import { EnseignantService } from '../../services/enseignant-service.service';
+import { AuthService } from '../../services/auth.service';
 
-interface Student {
+export interface ProjetWithBinomeDTO {
   id: number;
-  name: string;
-  group: string;
+  titre: string;
+  description: string;
+  technologies: string;
+  etat: string;
+  dateDepot: string;
+  dateAffectation: string;
+  filiere: string;
+  binomeAffecte?: BinomeDTO;
+  enseignant: EnseignantDTO;
 }
 
-interface Project {
+export interface BinomeDTO {
   id: number;
-  students: Student[];
+  etud1: EtudiantDTO;
+  etud2: EtudiantDTO;
+  moyenneBinome?: number;
 }
 
-interface ChatMessage {
-  sender: string;
-  role: string;
-  content: string;
-  timestamp: Date;
+export interface EtudiantDTO {
+  id: number;
+  nom: string;
+  prenom: string;
+  matricule: string;
+  filiere: string;
+  groupe: string;
+  moyenneGeneral?: number;
+}
+
+export interface EnseignantDTO {
+  id: number;
+  nom: string;
+  prenom: string;
+  specialite: string;
 }
 
 @Component({
@@ -25,142 +45,78 @@ interface ChatMessage {
   styleUrls: ['./liste-binomes.component.css']
 })
 export class ListeBinomesComponent implements OnInit {
-  projects: Project[] = [];
-  searchTerm: string = '';
-  filterType: string = 'par filière';
-  
-  // Chat related properties
-  showChatModal: boolean = false;
-  selectedStudent: Student | null = null;
-  projectTitle: string = '';
-  newMessage: string = '';
-  chatMessages: ChatMessage[] = [];
+  projets: ProjetWithBinomeDTO[] = [];
+  filteredProjets: ProjetWithBinomeDTO[] = [];
+  isLoading = false;
+  errorMessage = '';
+  searchTerm = '';
+  selectedFiliere = '';
+  currentUser: any;
+
+  // Extract unique filieres for filter dropdown
+  get filieres(): string[] {
+    return [...new Set(this.projets.map(p => p.filiere))];
+  }
+
+  constructor(
+    private enseignantService: EnseignantService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
-    // Populate with sample data that matches your screenshot
-    this.projects = [
-      {
-        id: 3,
-        students: [
-          { id: 1, name: 'Arij Chabbouh', group: 'A' }
-        ]
-      },
-      {
-        id: 3,
-        students: [
-          { id: 2, name: 'Maram Amor', group: 'B' }
-        ]
-      },
-      {
-        id: 5,
-        students: [
-          { id: 3, name: 'Sandra dissem', group: 'B' }
-        ]
-      },
-      {
-        id: 5,
-        students: [
-          { id: 4, name: 'Chahd Baatout', group: 'C' }
-        ]
-      },
-      {
-        id: 4,
-        students: [
-          { id: 5, name: 'Arij Meddeb', group: 'D' }
-        ]
-      },
-      {
-        id: 4,
-        students: [
-          { id: 6, name: 'Chahd ben ali', group: 'C' }
-        ]
-      },
-      {
-        id: 9,
-        students: [
-          { id: 7, name: 'Aziz Ben Saad', group: 'A' }
-        ]
-      },
-      {
-        id: 9,
-        students: [
-          { id: 8, name: 'Asma Daoued', group: 'A' }
-        ]
-      }
-    ];
-
-    // Sample chat messages
-    this.chatMessages = [
-      {
-        sender: 'étudiante',
-        role: 'student',
-        content: 'Quels sont les capteurs les plus adaptés pour détecter la ligne et comment choisir entre des capteurs infrarouges et une caméra avec traitement d\'image ?',
-        timestamp: new Date()
-      },
-      {
-        sender: 'Professeur',
-        role: 'teacher',
-        content: 'Si votre objectif est de réaliser un robot simple et efficace, les capteurs IR suffisent. En revanche, si vous souhaitez un robot plus intelligent et adaptable, l\'utilisation d\'une caméra avec traitement d\'image peut être un bon choix, mais nécessite une expertise en vision artificielle.',
-        timestamp: new Date()
-      },
-      {
-        sender: 'étudiante',
-        role: 'student',
-        content: 'Merci pour votre réponse',
-        timestamp: new Date()
-      },
-      {
-        sender: 'Professeur',
-        role: 'teacher',
-        content: 'Pensez également à tester votre robot dans différentes conditions d\'éclairage',
-        timestamp: new Date()
-      }
-    ];
+    this.currentUser = this.authService.currentUserValue;
+    this.loadProjects();
   }
 
-  getUniqueProjectIds(): number[] {
-    const uniqueIds = new Set<number>();
-    this.projects.forEach(project => uniqueIds.add(project.id));
-    return Array.from(uniqueIds).sort((a, b) => a - b);
-  }
-
-  getStudentsByProjectId(projectId: number): Student[] {
-    const projectStudents: Student[] = [];
-    this.projects.forEach(project => {
-      if (project.id === projectId) {
-        projectStudents.push(...project.students);
+  loadProjects(): void {
+    this.isLoading = true;
+    
+    // Use the current user's ID instead of hardcoded value
+    const enseignantId = this.currentUser?.id;
+    
+    if (!enseignantId) {
+      this.errorMessage = 'User not authenticated or not an enseignant';
+      this.isLoading = false;
+      return;
+    }
+    
+    this.enseignantService.getValidProjectsWithBinomeDetails(enseignantId).subscribe({
+      next: (projets) => {
+        this.projets = projets;
+        this.filteredProjets = [...projets];
+        this.isLoading = false;
+      },
+      error: (err) => {
+        this.errorMessage = 'Failed to load projects';
+        this.isLoading = false;
+        console.error(err);
       }
     });
-    return projectStudents;
   }
 
-  searchStudent(): void {
-    // Implementation for student search
-    console.log('Searching for:', this.searchTerm);
+  filterProjects(): void {
+    this.filteredProjets = this.projets.filter(projet => {
+      const matchesFiliere = this.selectedFiliere ? 
+        projet.filiere.toLowerCase() === this.selectedFiliere.toLowerCase() : true;
+      
+      const matchesSearch = this.searchTerm ? 
+        projet.titre.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        (projet.binomeAffecte?.etud1.nom.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
+        (projet.binomeAffecte?.etud1.prenom.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
+        (projet.binomeAffecte?.etud2.nom.toLowerCase().includes(this.searchTerm.toLowerCase())) ||
+        (projet.binomeAffecte?.etud2.prenom.toLowerCase().includes(this.searchTerm.toLowerCase()))
+        : true;
+      
+      return matchesFiliere && matchesSearch;
+    });
   }
 
-  openChatSpace(student: Student, projectId: number): void {
-    this.selectedStudent = student;
-    this.projectTitle = `Conception et Réalisation d'un Robot Suiveur de Ligne Intelligent`;
-    this.showChatModal = true;
+  onFiliereChange(filiere: string): void {
+    this.selectedFiliere = filiere;
+    this.filterProjects();
   }
 
-  closeChatModal(): void {
-    this.showChatModal = false;
-    this.selectedStudent = null;
-  }
-
-  sendMessage(): void {
-    if (!this.newMessage.trim()) return;
-    
-    const message: ChatMessage = {
-      sender: 'Professeur',
-      role: 'teacher',
-      content: this.newMessage,
-      timestamp: new Date()
-    };
-    
-    this.chatMessages.push(message);
-    this.newMessage = '';
+  onSearchChange(): void {
+    this.filterProjects();
   }
 }

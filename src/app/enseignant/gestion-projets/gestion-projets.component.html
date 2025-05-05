@@ -1,16 +1,18 @@
-  <!-- Add a button to show the form -->
-  <div class="search-container">
-    <input
-      type="text"
-      [placeholder]="activeTab === 'validation' ? 'Rechercher un projet...' : 'Rechercher un projet validé...'"
-      class="search-input"
-      [(ngModel)]="searchTerm"
-      (input)="onSearchInput()"
-    />
-  </div>
-  <button *ngIf="!showAddForm" class="add-project-button" (click)="toggleAddForm()">Ajouter un projet</button>
+<!-- Search and add button (hidden when form is shown) -->
+<div *ngIf="!showAddForm" class="search-container">
+  <input
+    type="text"
+    [placeholder]="activeTab === 'validation' ? 'Rechercher un projet...' : 'Rechercher un projet validé...'"
+    class="search-input"
+    [(ngModel)]="searchTerm"
+    (input)="onSearchInput()"
+  />
+  <button class="add-project-button" (click)="toggleAddForm()">Ajouter un projet</button>
+</div>
 
-<div *ngIf="activeTab === 'validation' && !showDetail" class="projects-table">
+<!-- Projects list and detail view (hidden when form is shown) -->
+<div *ngIf="!showAddForm">
+  <div *ngIf="activeTab === 'validation' && !showDetail" class="projects-table">
     <table>
       <thead>
         <tr>
@@ -31,7 +33,6 @@
           <td>{{ projet.dateDepot }}</td>
           <td>
             <div class="status-badge" [ngClass]="getStatusClass(projet.etat)">
-
               {{ projet.etat }}
               <i class="status-icon"></i>
             </div>
@@ -84,7 +85,7 @@
           <td>{{ groupedProjets[enseignant][0].enseignant.email }}</td>
           <td>
             <div class="badges-container-vertical">
-              <span *ngFor="let projet of groupedProjets [enseignant]" class="badge">
+              <span *ngFor="let projet of groupedProjets[enseignant]" class="badge">
                 {{ projet.titre }} <small>({{ projet.filiere }})</small>
               </span>
             </div>
@@ -93,14 +94,13 @@
       </tbody>
     </table>
   </div>
-  <!-- Add a button to show the form -->
-<button *ngIf="!showAddForm" class="add-project-button" (click)="toggleAddForm()">Ajouter un projet</button>
+</div>
 
-<!-- Form for adding a new project -->
+<!-- Add project form (shown only when showAddForm is true) -->
 <div *ngIf="showAddForm" class="add-project-form-container">
   <div class="form-header">
     <h2>Ajouter un nouveau projet</h2>
-    <button class="close-button" (click)="toggleAddForm()">×</button>
+    <button class="back-button" (click)="toggleAddForm()">Retour</button>
   </div>
   
   <form [formGroup]="projetForm" (ngSubmit)="onSubmitProjet()">
@@ -122,7 +122,7 @@
     
     <div class="form-group">
       <label for="technologies">Technologies et outils *</label>
-      <input type="text" id="technologies" formControlName="technologies" required>
+      <textarea id="technologies" formControlName="technologies" rows="2" required></textarea>
       <div *ngIf="projetForm.get('technologies')?.invalid && projetForm.get('technologies')?.touched" class="error-message">
         Les technologies sont obligatoires
       </div>
@@ -134,23 +134,9 @@
         <option value="">Sélectionner une filière</option>
         <option value="GSIL">GSIL</option>
         <option value="MECA">MECA</option>
-        <option value="MECA">INFOTRO</option>
       </select>
       <div *ngIf="projetForm.get('filiere')?.invalid && projetForm.get('filiere')?.touched" class="error-message">
         La filière est obligatoire
-      </div>
-    </div>
-    
-    <div class="form-group">
-      <label for="enseignant">Encadrant *</label>
-      <select id="enseignant" formControlName="enseignant" required>
-        <option value="">Sélectionner un encadrant</option>
-        <option *ngFor="let enseignant of enseignants" [ngValue]="enseignant">
-          {{ enseignant.nom }} {{ enseignant.prenom }}
-        </option>
-      </select>
-      <div *ngIf="projetForm.get('enseignant')?.invalid && projetForm.get('enseignant')?.touched" class="error-message">
-        L'encadrant est obligatoire
       </div>
     </div>
     
