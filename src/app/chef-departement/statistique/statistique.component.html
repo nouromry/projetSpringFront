@@ -1,0 +1,106 @@
+<div class="statistics-container">
+    <h1 class="page-title">Tableau de Bord Statistique</h1>
+    
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-file-alt"></i>
+        </div>
+        <div class="stat-content">
+          <h3>{{ totalProjets }}</h3>
+          <p>Projets Totaux</p>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-graduation-cap"></i>
+        </div>
+        <div class="stat-content">
+          <h3>{{ totalSoutenances }}</h3>
+          <p>Soutenances</p>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-chalkboard-teacher"></i>
+        </div>
+        <div class="stat-content">
+          <h3>{{ totalEnseignants }}</h3>
+          <p>Enseignants</p>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-user-friends"></i>
+        </div>
+        <div class="stat-content">
+          <h3>{{ totalBinomes }}</h3>
+          <p>Binômes</p>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-star"></i>
+        </div>
+        <div class="stat-content">
+          <h3>{{ moyenneGenerale | number:'1.1-2' }}</h3>
+          <p>Moyenne Générale</p>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-content">
+          <h3>{{ tauxValidation }}%</h3>
+          <p>Taux de Validation</p>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Chargement des données...</p>
+    </div>
+  
+    <!-- Charts Section -->
+    <div *ngIf="!isLoading" class="charts-section">
+      <div class="chart-row">
+        <div class="chart-container">
+          <h3>Projets par État</h3>
+          <canvas #projetStatusChart></canvas>
+        </div>
+        
+        <div class="chart-container">
+          <h3>Top 10 Enseignants</h3>
+          <canvas #enseignantProjetChart></canvas>
+        </div>
+      </div>
+      
+      <div class="chart-row">
+        <div class="chart-container">
+          <h3>Projets par Filière</h3>
+          <canvas #filiereDistributionChart></canvas>
+        </div>
+        
+        <div class="chart-container">
+          <h3>Top 10 Binômes</h3>
+          <canvas #moyenneBinomeChart></canvas>
+        </div>
+      </div>
+      
+      <div class="chart-row">
+        <div class="chart-container full-width">
+          <h3>Soutenances par Mois</h3>
+          <canvas #soutenanceTimelineChart></canvas>
+        </div>
+      </div>
+    </div>
+  </div>

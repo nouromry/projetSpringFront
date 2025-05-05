@@ -5,6 +5,7 @@ import { GestionEtudiantsComponent } from './gestion-etudiants/gestion-etudiants
 import { GestionSoutenancesComponent } from './gestion-soutenances/gestion-soutenances.component';
 import { SuiviProjetsComponent } from './suivi-projets/suivi-projets.component';
 import { RapportsPfaComponent } from './rapports-pfa/rapports-pfa.component';
+import { StatistiqueComponent } from './statistique/statistique.component';
 
 const routes: Routes = [
   {
@@ -31,6 +32,10 @@ const routes: Routes = [
       {
         path: 'rapports',
         component:  RapportsPfaComponent,
+      },
+      {
+        path: 'stats',
+        component:  StatistiqueComponent,
       },
     
     ],

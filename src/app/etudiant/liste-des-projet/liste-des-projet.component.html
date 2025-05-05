@@ -1,1 +1,107 @@
-<p>liste-des-projet works!</p>
+<div class="container">
+    <div class="header">
+      <h2>Liste des Projets</h2>
+      <button class="btn-create" (click)="toggleForm()">
+        {{ showForm ? 'Annuler' : 'Créer un Projet' }}
+      </button>
+    </div>
+  
+    <!-- Formulaire de création de projet -->
+    <div class="form-container" *ngIf="showForm">
+      <h3>Nouveau Projet</h3>
+      <form [formGroup]="projetForm" (ngSubmit)="onSubmit()">
+        <div class="form-group">
+          <label for="titre">Titre *</label>
+          <input type="text" id="titre" formControlName="titre" class="form-control" placeholder="Titre du projet">
+          <div class="error-message" *ngIf="projetForm.get('titre')?.invalid && projetForm.get('titre')?.touched">
+            Le titre est obligatoire
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <label for="description">Description *</label>
+          <textarea id="description" formControlName="description" class="form-control" rows="3" placeholder="Description du projet"></textarea>
+          <div class="error-message" *ngIf="projetForm.get('description')?.invalid && projetForm.get('description')?.touched">
+            La description est obligatoire
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <label for="technologies">Technologies *</label>
+          <input type="text" id="technologies" formControlName="technologies" class="form-control" placeholder="Ex: Java, Angular, Spring">
+          <div class="error-message" *ngIf="projetForm.get('technologies')?.invalid && projetForm.get('technologies')?.touched">
+            Les technologies sont obligatoires
+          </div>
+        </div>
+  
+        <div class="form-group">
+          <label for="filiere">Filière *</label>
+          <input type="text" id="filiere" formControlName="filiere" class="form-control" placeholder="Ex: Intelligence Artificielle">
+          <div class="error-message" *ngIf="projetForm.get('filiere')?.invalid && projetForm.get('filiere')?.touched">
+            La filière est obligatoire
+          </div>
+        </div>
+  
+        <div class="form-actions">
+          <button type="submit" class="btn-submit" [disabled]="projetForm.invalid || isSubmitting">
+            {{ isSubmitting ? 'Envoi en cours...' : 'Soumettre' }}
+          </button>
+        </div>
+  
+        <!-- Message de résultat -->
+        <div class="result-message" *ngIf="submissionResult.message" [ngClass]="{'success': submissionResult.success, 'error': !submissionResult.success}">
+          {{ submissionResult.message }}
+        </div>
+      </form>
+    </div>
+  
+    <!-- Liste des projets -->
+    <div class="projects-list" *ngIf="!showDetail">
+      <div *ngIf="projets.length === 0" class="no-projects">
+        Aucun projet disponible.
+      </div>
+      
+      <div *ngFor="let projet of projets" class="project-item" (click)="showProjetDetail(projet)">
+        <div class="project-info">
+          <div class="project-id">#{{ projet.id }}</div>
+          <div class="project-title">{{ projet.titre }}</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Détails du projet -->
+    <div *ngIf="showDetail" class="projet-detail-container">
+      <button class="back-button" (click)="backToList()">Retour à la liste</button>
+  
+      <div class="projet-detail-card">
+        <h2 class="titre-centre">Détail du projet</h2>
+  
+        <div class="detail-section-inline">
+          <h3>Titre :</h3>
+          <p>{{ selectedProjet.titre || 'Aucun titre' }}</p>
+        </div>
+  
+        <div class="detail-sections-container">
+          <div class="detail-section">
+            <h3>Technologies et outils</h3>
+            <p>{{ selectedProjet.technologies || 'Non spécifié' }}</p>
+          </div>
+  
+          <div class="detail-section">
+            <h3>Description du projet</h3>
+            <p>{{ selectedProjet.description || 'Aucune description' }}</p>
+          </div>
+          
+          <div class="detail-section">
+            <h3>Filière</h3>
+            <p>{{ selectedProjet.filiere || 'Non spécifiée' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <!-- Message si l'utilisateur n'est pas connecté -->
+    <div class="not-logged-in" *ngIf="!currentUser">
+      Vous devez vous connecter pour voir vos projets et en créer de nouveaux.
+    </div>
+  </div>

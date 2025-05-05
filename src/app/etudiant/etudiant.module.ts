@@ -9,8 +9,8 @@ import { EspaceAffichageComponent } from './espace-affichage/espace-affichage.co
 import { EspaceEchangeComponent } from './espace-echange/espace-echange.component';
 import { DocumentsComponent } from './documents/documents.component';
 import { SharedModule } from '../shared/shared.module'; 
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 @NgModule({
@@ -27,7 +27,8 @@ import { HttpClientModule } from '@angular/common/http';
     EtudiantRoutingModule,
     SharedModule,
     FormsModule,
-    HttpClientModule
+    HttpClientModule,
+    ReactiveFormsModule
   ]
 })
 export class EtudiantModule { }

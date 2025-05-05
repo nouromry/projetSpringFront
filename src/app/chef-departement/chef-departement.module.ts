@@ -12,6 +12,8 @@ import { GestionSoutenancesComponent } from './gestion-soutenances/gestion-soute
 import { SharedModule } from '../shared/shared.module'; // 👈 Import shared module
 import { AuthModule } from '../auth/auth.module';
 import { HttpClientModule } from '@angular/common/http';
+import { StatistiqueComponent } from './statistique/statistique.component';
+
 
 @NgModule({
   declarations: [
@@ -20,7 +22,8 @@ import { HttpClientModule } from '@angular/common/http';
     GestionEtudiantsComponent,
     SuiviProjetsComponent,
     RapportsPfaComponent,
-    GestionSoutenancesComponent
+    GestionSoutenancesComponent,
+    StatistiqueComponent
   ],
   imports: [
     CommonModule,
