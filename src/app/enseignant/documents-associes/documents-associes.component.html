@@ -44,25 +44,21 @@
     </div>
   </div>
   
-  <!-- Share form modal -->
   <div class="share-form-container" *ngIf="sharedDocument" (click)="closeShareForm()">
     <div class="share-form" (click)="$event.stopPropagation()">
       <div class="form-header">
         <h3>Détails du document</h3>
       </div>
       
-      <!-- Loading indicator -->
       <div class="loading-container" *ngIf="loading">
         <div class="loading-spinner"></div>
         <p>Chargement des détails...</p>
       </div>
       
-      <!-- Error message -->
       <div class="error-container" *ngIf="error">
         <p class="error-message">{{ error }}</p>
       </div>
       
-      <!-- Document details content -->
       <div class="form-content" *ngIf="!loading && !error && documentDetails">
         <div class="info-row">
           <span class="label">titre de projet:</span>

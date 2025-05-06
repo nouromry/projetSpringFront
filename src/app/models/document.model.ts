@@ -9,7 +9,8 @@ export class Document {
   cheminFichier: string;
   binome?: Binome;
   projet?: Projet;
-
+  binomeId?: number;
+  projetId?: number;
   constructor() {
     this.id = 0;
     this.titre = '';
@@ -25,4 +26,18 @@ export namespace Document {
     rapport_final = 'rapport_final',
     normal = 'normal'
   }
+}
+
+export enum DocumentType {
+  NORMAL = 'normal',
+  RAPPORT_FINAL = 'rapport_final'
+}
+
+
+export interface UploadDocumentRequest {
+  etudiantId: number;
+  projetId: number;
+  titre: string;
+  type: DocumentType;
+  file: File;
 }

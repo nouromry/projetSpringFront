@@ -39,13 +39,13 @@ export class SuiviProjetsComponent implements OnInit {
   } 
   groupByEncadrant(projets: Projet[]): { [key: string]: Projet[] } {
     return projets.reduce((acc, projet) => {
-      const enseignantNom = projet.enseignant.nom; // Utiliser le nom de l'enseignant pour regrouper
+      const enseignantNom = projet.enseignant.nom; 
       if (!acc[enseignantNom]) {
         acc[enseignantNom] = [];
       }
-      acc[enseignantNom].push(projet); // Utiliser enseignantNom et non enseignant.nom
+      acc[enseignantNom].push(projet); 
       return acc;
-    }, {} as { [key: string]: Projet[] }); // Spécifier le type de `acc`
+    }, {} as { [key: string]: Projet[] }); 
   }
   
   objectKeys(obj: { [key: string]: any }): string[] {
@@ -60,7 +60,7 @@ export class SuiviProjetsComponent implements OnInit {
     } else if (tab === 'liste') {
       const projetsValides = this.projets.filter(p => p.etat.toUpperCase() === 'VALIDE');
       this.groupedProjets = this.groupByEncadrant(projetsValides);
-      this.filterProjets(); // pour appliquer le filtre par filière
+      this.filterProjets(); 
     }
   }
 
@@ -69,7 +69,7 @@ export class SuiviProjetsComponent implements OnInit {
   if (status === 'tous') {
     this.filteredProjets = [...this.projets];
   } else {
-    // Convert the status for comparison
+
     const compareStatus = status.toUpperCase();
     this.filteredProjets = this.projets.filter(projet => 
       projet.etat.toUpperCase() === compareStatus

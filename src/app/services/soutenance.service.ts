@@ -13,7 +13,6 @@ import { environment } from 'src/environments/environment';
   providedIn: 'root'
 })
 export class SoutenanceService {
-  // Base URL for API calls
   private apiUrl = environment.apiUrl ? `${environment.apiUrl}/soutenances` : 'http://localhost:8081/api/soutenances';
   private enseignantUrl = environment.apiUrl ? `${environment.apiUrl}/enseignants` : 'http://localhost:8081/api/enseignants';
 
@@ -25,7 +24,7 @@ export class SoutenanceService {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }),
-      withCredentials: true // For CORS with credentials
+      withCredentials: true 
     };
   }
   
@@ -40,9 +39,7 @@ export class SoutenanceService {
     );
   }
 
-  // Process raw soutenances from backend
   private processRawSoutenances(soutenances: any[]): SoutenanceView[] {
-    // First pass - count binomes per room+date
     const roomCounts = new Map<string, number>();
     
     soutenances.forEach(s => {
@@ -55,9 +52,7 @@ export class SoutenanceService {
       }
     });
     
-    // Second pass - map to view models with counts
     return soutenances.map(s => {
-      // Handle dateSoutenance format
       const dateStr = s.dateSoutenance ? 
         (typeof s.dateSoutenance === 'string' ? 
           s.dateSoutenance.split('T')[0] : 
@@ -70,7 +65,6 @@ export class SoutenanceService {
         nombreBinomes = roomCounts.get(key) || 1;
       }
       
-      // Create base view model
       const view: SoutenanceView = {
         id: s.id,
         salle: s.salle || 'Salle non affectée',
@@ -85,7 +79,6 @@ export class SoutenanceService {
         jury: []
       };
       
-      // Process binome info
       if (s.binomeId) {
         view.binomeId = s.binomeId;
         
@@ -97,7 +90,6 @@ export class SoutenanceService {
           view.binomeEtudiant2 = s.binomeEtudiant2;
         }
         
-        // Project info
         if (s.projetId) {
           view.projetId = s.projetId;
           view.projetTitre = s.projetTitre;
@@ -106,9 +98,7 @@ export class SoutenanceService {
         }
       }
       
-      // Process jury members
       if (s.juryMembers && Array.isArray(s.juryMembers) && s.juryMembers.length > 0) {
-        // Extract teachers from enseignants field if available
         const enseignantsStr = s.enseignants || '';
         const enseignantMatches = enseignantsStr.match(/([^\(]+)\(([^\)]+)\)/g);
         
@@ -128,11 +118,8 @@ export class SoutenanceService {
           });
         }
         
-        // Convert juryMembers to jury with proper fullName
         view.juryMembers = s.juryMembers.map((member: JuryMemberDTO) => {
-          // Ensure fullName is populated
           if (!member.fullName && !member.nomComplet) {
-            // Look up in the encadrant/examinateur fields if available
             const role = member.role.toLowerCase();
             if (role === 'encadrant' && view.encadrant !== 'Non assigné') {
               member.fullName = view.encadrant;
@@ -147,9 +134,7 @@ export class SoutenanceService {
     });
   }
 
-  // Map a single soutenance to view model
   mapToSoutenanceView(s: Soutenance, nombreBinomes: number = 1): SoutenanceView {
-    // Initialize with default values
     const view: SoutenanceView = {
       id: s.id,
       salle: s.salle || 'Salle non affectée',
@@ -178,7 +163,6 @@ export class SoutenanceService {
         view.binomeEtudiant2 = `${s.binome.etud2.nom || ''} ${s.binome.etud2.prenom || ''}`.trim();
       }
       
-      // Project info from binome
       if (s.binome.projetAffecte) {
         const projet = s.binome.projetAffecte;
         view.projetId = projet.id;
@@ -187,8 +171,7 @@ export class SoutenanceService {
         view.projetTechnologies = projet.technologies;
       }
     }
-    
-    // Process jury members
+
     if (s.jury && Array.isArray(s.jury) && s.jury.length > 0) {
       view.jury = s.jury.map(j => {
         if (!j?.enseignant) return null;
@@ -196,14 +179,13 @@ export class SoutenanceService {
         const enseignant = j.enseignant;
         const fullName = `${enseignant.prenom || ''} ${enseignant.nom || ''}`.trim();
         
-        // Assign to role-specific fields - only handle ENCADRANT and EXAMINATEUR roles
+  
         if (j.role === JuryRole.ENCADRANT) {
           view.encadrant = fullName;
         } else if (j.role === JuryRole.EXAMINATEUR) {
           view.examinateur = fullName;
         }
         
-        // Return the jury member
         return {
           id: {
             enseignantId: enseignant.id,
@@ -215,7 +197,6 @@ export class SoutenanceService {
         };
       }).filter(j => j !== null) as JurySoutenance[];
       
-      // Convert jury to juryMembers for API compatibility
       view.juryMembers = view.jury.map(j => ({
         enseignantId: j.enseignant.id,
         role: j.role,
@@ -223,7 +204,6 @@ export class SoutenanceService {
       }));
     }
     
-    // Convert date to heureDebut format for API consistency
     view.heureDebut = view.heureD;
     
     return view;
@@ -235,29 +215,24 @@ export class SoutenanceService {
       this.http.get<Enseignant[]>(this.enseignantUrl, this.getHttpOptions())
     ]).pipe(
       map(([soutenances, enseignants]) => {
-        // Filter out students and keep only enseignants
         const validEnseignants = enseignants.filter(e => e.role === 'enseignant');
         
-        // Process raw data - adapt if necessary based on actual API response format
         return this.processRawSoutenances(soutenances);
       }),
       catchError(this.handleError)
     );
   }
 
-  // Helper method to check if two dates are the same day
   private isSameDay(date1: Date, date2: Date): boolean {
     return date1.getFullYear() === date2.getFullYear() &&
            date1.getMonth() === date2.getMonth() &&
            date1.getDate() === date2.getDate();
   }
   
-  // Helper method to safely format time values
   private formatTimeValue(timeValue: any): string {
     if (!timeValue) return 'N/A';
     
     if (typeof timeValue === 'string') {
-      // If in format 'HH:MM:SS', strip seconds
       if (timeValue.includes(':')) {
         const parts = timeValue.split(':');
         if (parts.length >= 2) {
@@ -267,12 +242,10 @@ export class SoutenanceService {
       return timeValue;
     }
     
-    // Handle Time object or Date object
     if (timeValue instanceof Date) {
       return `${String(timeValue.getHours()).padStart(2, '0')}:${String(timeValue.getMinutes()).padStart(2, '0')}`;
     }
     
-    // Handle cases where it might be another object with toString method
     try {
       const timeStr = String(timeValue);
       if (timeStr.includes(':')) {
@@ -288,7 +261,6 @@ export class SoutenanceService {
   }
 
   getSoutenancesByDate(date: string | Date): Observable<SoutenanceView[]> {
-    // Format date if it's a Date object
     const formattedDate = date instanceof Date ? 
       `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}` : 
       date;
@@ -324,7 +296,6 @@ export class SoutenanceService {
         errorMessage = 'Erreur interne du serveur. Veuillez réessayer plus tard.';
       }
       
-      // Add server error details if available
       if (error.error && typeof error.error === 'object') {
         const serverErrors = [];
         for (const key in error.error) {
@@ -346,11 +317,9 @@ export class SoutenanceService {
     return /^([01]\d|2[0-3]):([0-5]\d)$/.test(time);
   }
   
-  // Format a DTO object for creating/updating soutenances
   private prepareSoutenancePayload(data: SoutenanceView): SoutenanceView {
     const payload = { ...data };
     
-    // Format time if needed
     if (payload.heureDebut && !payload.heureDebut.includes(':')) {
       payload.heureDebut += ':00';
     }
@@ -399,16 +368,12 @@ export class SoutenanceService {
     );
   }
   
-  // Get a single soutenance by ID
   getSoutenanceById(id: number): Observable<SoutenanceView> {
     return this.http.get<any>(`${this.apiUrl}/${id}`, this.getHttpOptions()).pipe(
       map(soutenance => {
-        // Check if we're dealing with a raw API response or a Soutenance model
         if (soutenance.dateSoutenance !== undefined) {
-          // This is likely a raw API response, process it directly
           return this.processRawSoutenances([soutenance])[0];
         } else {
-          // This is likely a Soutenance model, use the existing mapper
           return this.mapToSoutenanceView(soutenance);
         }
       }),
@@ -422,13 +387,10 @@ export class SoutenanceService {
     return this.http.get<any>(url, this.getHttpOptions()).pipe(
       tap(data => console.log(`Soutenance fetched for binome ${binomeId}:`, data)),
       map(soutenance => {
-        // Check if response is direct API format or needs mapping
         if (soutenance) {
           if (soutenance.dateSoutenance !== undefined) {
-            // This is already in the API response format
             return this.processRawSoutenances([soutenance])[0];
           } else {
-            // This needs to be mapped from Soutenance format
             return this.mapToSoutenanceView(soutenance);
           }
         }

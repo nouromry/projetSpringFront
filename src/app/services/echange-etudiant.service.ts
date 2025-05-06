@@ -27,6 +27,7 @@ export interface Binome {
   active: boolean;
 }
 
+
 export interface ProjetWithBinomeDTO {
   id: number;
   titre: string;
@@ -57,9 +58,7 @@ export class EchangeEtudiantService {
   
   constructor(private http: HttpClient) { }
 
-  /**
-   * Get the project associated with a student through their binome
-   */
+
   getProjetForEtudiant(etudiantId: number): Observable<ProjetWithBinomeDTO> {
     return this.http.get<ProjetWithBinomeDTO>(`${this.apiUrl}/${etudiantId}/projet`)
       .pipe(
@@ -67,9 +66,7 @@ export class EchangeEtudiantService {
       );
   }
 
-  /**
-   * Get comments for the student's project
-   */
+
   getCommentsForEtudiantProjet(etudiantId: number): Observable<CommentaireDTO[]> {
     return this.http.get<CommentaireDTO[]>(`${this.apiUrl}/${etudiantId}/comments`)
       .pipe(
@@ -77,9 +74,7 @@ export class EchangeEtudiantService {
       );
   }
 
-  /**
-   * Add a new comment from a student to their project
-   */
+
   addComment(etudiantId: number, contenu: string): Observable<Commentaire> {
     return this.http.post<Commentaire>(`${this.apiUrl}/${etudiantId}/comment`, { contenu })
       .pipe(
@@ -87,9 +82,7 @@ export class EchangeEtudiantService {
       );
   }
 
-  /**
-   * Check if student has a binome
-   */
+
   hasActiveBinome(etudiantId: number): Observable<{ hasBinome: boolean }> {
     return this.http.get<{ hasBinome: boolean }>(`${this.apiUrl}/${etudiantId}/has-binome`)
       .pipe(
@@ -97,9 +90,7 @@ export class EchangeEtudiantService {
       );
   }
 
-  /**
-   * Check if student has a project
-   */
+ 
   hasAssignedProject(etudiantId: number): Observable<{ hasProject: boolean }> {
     return this.http.get<{ hasProject: boolean }>(`${this.apiUrl}/${etudiantId}/has-project`)
       .pipe(
@@ -107,9 +98,7 @@ export class EchangeEtudiantService {
       );
   }
 
-  /**
-   * Get comments created by a specific student
-   */
+
   getCommentsByEtudiant(etudiantId: number): Observable<CommentaireDTO[]> {
     return this.http.get<CommentaireDTO[]>(`${this.apiUrl}/${etudiantId}/my-comments`)
       .pipe(
@@ -117,9 +106,7 @@ export class EchangeEtudiantService {
       );
   }
 
-  /**
-   * Get the latest comments for each project a student is involved with
-   */
+ 
   getLatestCommentsForEtudiantProjects(etudiantId: number): Observable<CommentaireDTO[]> {
     return this.http.get<CommentaireDTO[]>(`${this.apiUrl}/${etudiantId}/latest-comments`)
       .pipe(
@@ -127,9 +114,7 @@ export class EchangeEtudiantService {
       );
   }
 
-  /**
-   * Get unread comments for a student
-   */
+
   getUnreadCommentsForEtudiant(etudiantId: number): Observable<CommentaireDTO[]> {
     return this.http.get<CommentaireDTO[]>(`${this.apiUrl}/${etudiantId}/unread-comments`)
       .pipe(
@@ -137,9 +122,7 @@ export class EchangeEtudiantService {
       );
   }
 
-  /**
-   * Get all comments related to a student's project
-   */
+
   getAllCommentsForEtudiantProjects(etudiantId: number): Observable<CommentaireDTO[]> {
     return this.http.get<CommentaireDTO[]>(`${this.apiUrl}/${etudiantId}/all-comments`)
       .pipe(
@@ -147,9 +130,7 @@ export class EchangeEtudiantService {
       );
   }
 
-  /**
-   * Mark a comment as read
-   */
+
   markCommentAsRead(commentId: number): Observable<any> {
     return this.http.put<any>(`${this.apiUrl}/comments/${commentId}/mark-read`, {})
       .pipe(
@@ -157,9 +138,7 @@ export class EchangeEtudiantService {
       );
   }
 
-  /**
-   * Error handling method
-   */
+ 
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'Une erreur est survenue';
     

@@ -102,9 +102,9 @@ export class ListeDesProjetComponent implements OnInit {
           this.isSubmitting = false;
           this.submissionResult = { 
             success: false, 
-            message: 'Erreur lors de la création du projet. Veuillez réessayer.' 
+            message: 'Erreur lors de la création du projet: car le etudiant a deja choisi des projets' 
           };
-          console.error('Erreur lors de la création du projet:', error);
+          console.error('Erreur lors de la création du projet: car le etudiant a deja choisi des projets', error);
         }
       );
     } else {

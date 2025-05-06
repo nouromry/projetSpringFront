@@ -48,19 +48,17 @@ export interface EnseignantDTO {
   specialite: string;
 }
 
-// Keep your existing Projet and Enseignant interfaces
 export interface Projet {
   id: number;
   titre: string;
   description: string;
-  // ... other properties
+  
 }
 
 export interface Enseignant {
   id: number;
   nom: string;
   prenom: string;
-  // ... other properties
 }
 @Injectable({
   providedIn: 'root'

@@ -13,7 +13,7 @@ export class EnseignantService {
   constructor(private http: HttpClient) { }
 
   getAllEnseignants(): Observable<Enseignant[]> {
-    return this.http.get<Enseignant[]>(this.apiUrl, { withCredentials: true }); // Ensure this matches the Spring CORS configuration
+    return this.http.get<Enseignant[]>(this.apiUrl, { withCredentials: true }); 
   }
   
   getEnseignantById(id: number): Observable<Enseignant> {

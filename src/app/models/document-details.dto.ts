@@ -1,4 +1,3 @@
-// src/app/models/document-details.dto.ts
 
 export interface DocumentDetailsDTO {
     id: number;
@@ -7,7 +6,6 @@ export interface DocumentDetailsDTO {
     dateDepot: Date;
     cheminFichier: string;
     
-    // Binome details
     binomeId: number;
     etudiant1Nom: string;
     etudiant1Prenom: string;
@@ -16,11 +14,9 @@ export interface DocumentDetailsDTO {
     etudiant2Prenom: string;
     etudiant2Filiere: string;
     
-    // Project details
     projetId: number;
     projetTitre: string;
     
-    // Enseignant details
     enseignantId: number;
     enseignantNom: string;
     enseignantPrenom: string;

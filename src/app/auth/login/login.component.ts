@@ -26,7 +26,7 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Check if user is already logged in
+    
     if (this.authService.isLoggedIn()) {
       this.router.navigate(['/dashboard']);
     }
@@ -43,7 +43,7 @@ export class LoginComponent implements OnInit {
 
     this.authService.login(email, password).subscribe({
       next: () => {
-        // Navigate based on user role
+        
         const role = this.authService.getRole();
         if (role === 'chefDep') {
           this.router.navigate(['/chef-departement']);

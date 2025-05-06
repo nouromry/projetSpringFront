@@ -1,4 +1,3 @@
-<!-- gestion-etudiants.component.html -->
 <div class="container">
   <div class="search-container">
     <div class="filter-dropdown">
@@ -9,6 +8,9 @@
     <div class="search-box">
       <input type="text" [(ngModel)]="searchTerm" (input)="search()" placeholder="Rechercher..." class="search-input">
     </div>
+    <button class="btn btn-primary" (click)="toggleProjectAssignments()">
+      {{ showProjectAssignments ? 'Masquer affectations' : 'Afficher affectations projets' }}
+    </button>
   </div>
 
   <div class="table-container">
@@ -20,8 +22,10 @@
           <th>Classe</th>
           <th>Groupe</th>
           <th>Moyenne Élève</th>
+          <th>Moyenne Élève</th>
           <th>Choix de PFA</th>
           <th>Moyenne Binôme</th>
+          <th *ngIf="showProjectAssignments">Projet Affecté</th>
         </tr>
       </thead>
       <tbody>
@@ -31,10 +35,15 @@
           <td>{{ binome.filiere }}</td>
           <td>{{ binome.groupe }}</td>
           <td>{{ binome.moyenneEtud1 }}</td>
-          <td class="choix-pfa">{{ binome.projetsChoisis.join(', ') }}</td>
+          <td>{{ binome.moyenneEtud2 }}</td>
+          <td class="choix-pfa">{{ getProjetChoices(binome) }}</td>
           <td>{{ binome.moyenneBinome }}</td>
+          <td *ngIf="showProjectAssignments">{{ getAssignedProject(binome) }}</td>
         </tr>
       </tbody>
     </table>
+    <div *ngIf="isLoading" class="loading-spinner">
+      Chargement des affectations de projets...
+    </div>
   </div>
 </div>

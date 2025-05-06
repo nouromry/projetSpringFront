@@ -23,14 +23,12 @@ export class GestionSoutenancesComponent implements OnInit {
   loading = false;
   selectedSoutenance: SoutenanceView | null = null;
   
-  // Calendar and planning properties
   dayHeaders = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
   timeSlots = ['09:00', '10:30', '13:00', '14:30', '16:00'];
   currentMonth: Date = new Date();
   selectedDate: Date | null = null;
   calendarDays: any[] = [];
 
-  // Form data
   newDefense: {
     salle: string,
     encadrant: number | null,
@@ -45,7 +43,6 @@ export class GestionSoutenancesComponent implements OnInit {
     heure: ''
   };
 
-  // Data lists
   availableSalles: string[] = [];
   enseignants: Enseignant[] = [];
   availableBinomes: Binome[] = [];
@@ -437,19 +434,15 @@ export class GestionSoutenancesComponent implements OnInit {
         next: (details) => {
           console.log('Received soutenance details:', details);
           
-          // Store the complete details for display
           this.selectedSoutenance = {
             ...details,
-            // Ensure these properties exist for the template
             titre: details.titre || details.projetTitre || 'Non renseigné',
             dateSoutenance: details.dateSoutenance,
             heureDebut: details.heureDebut || details.heureD,
             binome: details.binome,
             jury: details.jury,
-            // Use the values from the SoutenanceView or fallback
             encadrant: details.encadrant || 'Non défini',
             examinateur: details.examinateur || 'Non défini',
-            // Add binome members information
             binomeEtudiant1: details.binomeEtudiant1,
             binomeEtudiant2: details.binomeEtudiant2
           };
@@ -471,7 +464,6 @@ export class GestionSoutenancesComponent implements OnInit {
     
     const members = [];
     
-    // First try to use the pre-formatted student names
     if (soutenance.binomeEtudiant1) {
       members.push(soutenance.binomeEtudiant1);
     }
@@ -480,7 +472,6 @@ export class GestionSoutenancesComponent implements OnInit {
       members.push(soutenance.binomeEtudiant2);
     }
     
-    // If no pre-formatted names, try to extract from binome object
     if (members.length === 0 && soutenance.binome) {
       if (soutenance.binome.etud1) {
         members.push(this.getStudentName(soutenance.binome.etud1));
@@ -497,12 +488,10 @@ export class GestionSoutenancesComponent implements OnInit {
   getEncadrant(soutenance: SoutenanceView): string {
     if (!soutenance) return 'Non défini';
     
-    // First check if encadrant is directly available from SoutenanceView
     if (soutenance.encadrant && soutenance.encadrant !== 'Non assigné') {
       return soutenance.encadrant;
     }
     
-    // Handle case where jury might be an array
     if (soutenance.jury && Array.isArray(soutenance.jury)) {
       const encadrant = soutenance.jury.find((j: JurySoutenance) => 
         j.role === JuryRole.ENCADRANT
@@ -519,12 +508,10 @@ export class GestionSoutenancesComponent implements OnInit {
   getExaminateur(soutenance: SoutenanceView): string {
     if (!soutenance) return 'Non défini';
     
-    // First check if examinateur is directly available from SoutenanceView
     if (soutenance.examinateur && soutenance.examinateur !== 'Non assigné') {
       return soutenance.examinateur;
     }
     
-    // Handle case where jury might be an array
     if (soutenance.jury && Array.isArray(soutenance.jury)) {
       const examinateur = soutenance.jury.find((j: JurySoutenance) => 
         j.role === JuryRole.EXAMINATEUR
@@ -538,21 +525,17 @@ export class GestionSoutenancesComponent implements OnInit {
     return 'Non défini';
   }
   
-  // Helper method to get teacher name considering different data structures
   getEnseignantName(enseignant: any): string {
     if (!enseignant) return 'Non défini';
       
-    // Handle case where enseignant is just a string
     if (typeof enseignant === 'string') {
       return enseignant !== 'N/A' ? enseignant : 'Non défini';
     }
     
-    // Try to use fullName if available
     if (enseignant.fullName) {
       return enseignant.fullName;
     }
       
-    // Handle different possible property structures
     const nom = enseignant.nom || 
                 (enseignant.utilisateur && enseignant.utilisateur.nom);
                     

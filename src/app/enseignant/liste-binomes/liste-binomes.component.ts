@@ -53,7 +53,6 @@ export class ListeBinomesComponent implements OnInit {
   selectedFiliere = '';
   currentUser: any;
 
-  // Extract unique filieres for filter dropdown
   get filieres(): string[] {
     return [...new Set(this.projets.map(p => p.filiere))];
   }
@@ -71,7 +70,6 @@ export class ListeBinomesComponent implements OnInit {
   loadProjects(): void {
     this.isLoading = true;
     
-    // Use the current user's ID instead of hardcoded value
     const enseignantId = this.currentUser?.id;
     
     if (!enseignantId) {

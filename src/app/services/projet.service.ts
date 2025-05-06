@@ -9,7 +9,7 @@ import { environment } from 'src/environments/environment';
 })
 export class ProjetService {
   private baseUrl = 'http://localhost:8081/api/projets'; 
-  private apiUrl = environment.apiUrl + '/projets';// Remplacez par l'URL de votre backend
+  private apiUrl = environment.apiUrl + '/projets';
 
   constructor(private http: HttpClient) { }
 
@@ -26,23 +26,15 @@ createProjet(projet: Projet): Observable<Projet> {
   return this.http.post<Projet>(this.baseUrl, projet);
 }
 
-/**
-   * Get projects by status
-   */
+
 getProjetsByEtat(etat: string): Observable<ProjetDTO[]> {
   return this.http.get<ProjetDTO[]>(`${this.apiUrl}/etat/${etat}`);
 }
 
-/**
- * Get projects by filiere
- */
 getProjetsByFiliere(filiere: string): Observable<ProjetDTO[]> {
   return this.http.get<ProjetDTO[]>(`${this.apiUrl}/filiere/${filiere}`);
 }
 
-/**
- * Search projects
- */
 searchProjets(term: string): Observable<ProjetDTO[]> {
   return this.http.get<ProjetDTO[]>(`${this.apiUrl}/search?term=${term}`);
 }

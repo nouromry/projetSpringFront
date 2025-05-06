@@ -1,0 +1,228 @@
+/* Documents Container */
+.documents-container {
+    padding: 2.5rem 3rem;
+    background-color: #f0f8ff;
+    font-family: 'Segoe UI', sans-serif;
+    color: #002b5b;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  h5{}
+  /* Section Title */
+  .section-title {
+    font-size: 2.25rem;
+    font-weight: 600;
+    color: #002b5b;
+    border-left: 8px solid #a4d7f5;
+    padding-left: 1rem;
+    margin: 0 0 2.5rem 0;
+  }
+  
+  /* Alerts */
+  .alert {
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+    line-height: 1.5;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  .alert-danger {
+    background-color: #ffdce0;
+    color: #6b0000;
+    border-left: 6px solid #e53935;
+  }
+  
+  .alert-success {
+    background-color: #e1f5fe;
+    color: #004d40;
+    border-left: 6px solid #00acc1;
+  }
+  
+  /* Upload Card */
+  .card.mb-4 {
+    border: none;
+    background-color: #ffffff;
+    box-shadow: 0 6px 18px rgba(0, 43, 91, 0.12);
+    border-radius: 1rem;
+    overflow: hidden;
+    margin-bottom: 3rem !important;
+  }
+  
+  .card-header.bg-primary {
+    background-color: #002b5b !important;
+    color: #ffffff;
+    padding: 1.5rem 2rem;
+    font-size: 1.25rem;
+  }
+  
+  .card-body {
+    padding: 2rem;
+  }
+  
+  /* Form Inputs */
+  .form-label {
+    font-weight: 600;
+    color: #002b5b;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+  }
+  
+  .form-control,
+  .form-select {
+    border: 1px solid #a4d7f5;
+    border-radius: 0.5rem;
+    transition: all 0.2s ease-in-out;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .form-control:focus,
+  .form-select:focus {
+    border-color: #002b5b;
+    box-shadow: 0 0 0 0.25rem rgba(0, 43, 91, 0.2);
+  }
+  
+  /* Form Grid */
+  .row.g-3 {
+    gap: 1.5rem 0;
+  }
+  
+  /* Buttons */
+  button.btn {
+    padding: 0.875rem 1.75rem;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 0.75rem;
+    margin-top: 0.5rem;
+    transition: all 0.2s ease;
+  }
+  
+  button.btn-primary {
+    background-color: #4590e5;
+    border: none;
+    margin-right: 1rem;
+  }
+  
+  button.btn-primary:hover {
+    background-color: #014080;
+    transform: translateY(-1px);
+  }
+  
+  button.btn-secondary {
+    background-color: #a4d7f5;
+    color: #002b5b;
+    border: none;
+  }
+  
+  button.btn-secondary:hover {
+    background-color: #91cbe5;
+    transform: translateY(-1px);
+  }
+  
+  /* Progress Bar */
+  .progress {
+    height: 1.5rem;
+    border-radius: 0.75rem;
+    background-color: #d6eaf8;
+    margin: 2rem 0;
+  }
+  
+  .progress-bar {
+    background-color: #002b5b;
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+  
+  /* Document List Card */
+  .card.shadow-sm.mt-4 {
+    border: none;
+    background-color: #ffffff;
+    border-radius: 1rem;
+    box-shadow: 0 6px 18px rgba(0, 43, 91, 0.12);
+    margin-top: 3rem !important;
+  }
+  
+  /* Document Items Grid */
+  .row.g-3 {
+    margin-top: 1.5rem;
+    gap: 1.5rem !important;
+  }
+  
+  /* Individual Document Card */
+  .card.h-100 {
+    border: 1px solid #e6f2f8;
+    border-radius: 0.875rem;
+    transition: all 0.25s ease;
+    padding: 0;
+  }
+  
+  .card.h-100:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 24px rgba(0, 43, 91, 0.15);
+  }
+  
+  .card-body {
+    padding: 1.75rem;
+  }
+  
+  .card-body h6 {
+    font-weight: 600;
+    color: #002b5b;
+    font-size: 1.125rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .card-body small {
+    color: #6c757d;
+    font-size: 0.875rem;
+  }
+  
+  /* Badge */
+  .badge {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Download Button */
+  .btn-outline-primary {
+    border: 2px solid #002b5b;
+    color: #002b5b;
+    padding: 0.5rem 1.25rem;
+    font-weight: 500;
+    border-radius: 0.75rem;
+    transition: all 0.2s ease;
+  }
+  
+  .btn-outline-primary:hover {
+    background-color: #002b5b;
+    color: white;
+    transform: translateY(-1px);
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .documents-container {
+      padding: 1.5rem;
+    }
+    
+    .card-header.bg-primary {
+      padding: 1.25rem;
+    }
+    
+    .card-body {
+      padding: 1.5rem;
+    }
+    
+    .row.g-3 {
+      gap: 1rem !important;
+    }
+  }

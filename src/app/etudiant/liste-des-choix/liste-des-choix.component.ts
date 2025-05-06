@@ -15,17 +15,16 @@ import { UserRole } from 'src/app/models/utilisateur.model';
   styleUrls: ['./liste-des-choix.component.css']
 })
 export class ListeDesChoixComponent implements OnInit {
-  // Variables pour la recherche
+ 
   searchText: string = '';
-  
-  // Variables pour filtrer les projets
+ 
   selectedFiliere: string = '';
   selectedStatus: string = '';
   
-  // Variables pour notification
+
   notification: {message: string, type: 'success' | 'error' | 'warning'} | null = null;
   
-  // Variables pour les étudiants
+ 
   etudiant1: Etudiant = {
     id: 0,
     matricule: '',
@@ -50,14 +49,13 @@ export class ListeDesChoixComponent implements OnInit {
     role: UserRole.ETUDIANT
   };
   
-  // Variables pour les projets et choix
   projetsDisponibles: Projet[] = [];
   allProjets: Projet[] = [];
   projetSelectionnes: any[] = [];
   binome: Binome | null = null;
   isLoading = false;
   
-  // Filtres disponibles
+
   filiereOptions: string[] = ['Informatique', 'Électronique', 'Mécanique']; // Ajoutez les filières appropriées
   statusOptions: string[] = ['Disponible', 'Assigné', 'Terminé']; // Ajoutez les statuts appropriés
   
@@ -70,9 +68,7 @@ export class ListeDesChoixComponent implements OnInit {
     this.loadAllProjets();
   }
   
-  /**
-   * Affiche une notification
-   */
+ 
   showNotification(message: string, type: 'success' | 'error' | 'warning'): void {
     this.notification = { message, type };
     setTimeout(() => {
@@ -80,9 +76,6 @@ export class ListeDesChoixComponent implements OnInit {
     }, 3000);
   }
   
-  /**
-   * Charge tous les projets
-   */
   loadAllProjets(): void {
     this.isLoading = true;
     this.choixProjetService.getProjetsDisponibles()
@@ -95,32 +88,23 @@ export class ListeDesChoixComponent implements OnInit {
       )
       .subscribe(data => {
         this.allProjets = data;
-        this.projetsDisponibles = [...data]; // Copie initiale
+        this.projetsDisponibles = [...data]; 
       });
   }
   
-  /**
-   * Filtre les projets par statut
-   * Note: Cette méthode nécessite une adaptation selon l'API disponible
-   */
+  
   filterByStatus(status: string): void {
     this.selectedStatus = status;
     this.applyFilters();
   }
   
-  /**
-   * Filtre les projets par filière
-   * Note: Cette méthode nécessite une adaptation selon l'API disponible
-   */
+ 
   filterByFiliere(filiere: string): void {
     this.selectedFiliere = filiere;
     this.applyFilters();
   }
   
-  /**
-   * Applique tous les filtres sélectionnés
-   * Note: Cette méthode utilise un filtrage côté client pour la démonstration
-   */
+  
   applyFilters(): void {
     this.isLoading = true;
     
@@ -129,9 +113,6 @@ export class ListeDesChoixComponent implements OnInit {
     this.isLoading = false;
   }
   
-  /**
-   * Recherche un étudiant par son matricule
-   */
   rechercherEtudiant(etudiantIndex: number): void {
     const matricule = etudiantIndex === 1 ? this.etudiant1.matricule : this.etudiant2.matricule;
     
@@ -160,10 +141,7 @@ export class ListeDesChoixComponent implements OnInit {
         }
       });
   }
-  
-  /**
-   * Crée un binôme à partir des deux étudiants
-   */
+ 
   creerBinome(): void {
     if (!this.etudiant1.matricule || !this.etudiant2.matricule) {
       this.showNotification('Veuillez saisir les matricules des deux étudiants', 'warning');
@@ -184,7 +162,7 @@ export class ListeDesChoixComponent implements OnInit {
           this.binome = data;
           this.showNotification('Binôme créé avec succès', 'success');
           
-          // Filtrer automatiquement par la filière du binôme
+          
           if (this.etudiant1.filiere) {
             this.selectedFiliere = this.etudiant1.filiere;
             this.filterByFiliere(this.etudiant1.filiere);
@@ -193,9 +171,7 @@ export class ListeDesChoixComponent implements OnInit {
       });
   }
   
-  /**
-   * Ajoute un projet à la liste des choix
-   */
+
   ajouterProjet(projet: Projet): void {
     if (this.projetSelectionnes.length >= 10) {
       this.showNotification('Vous ne pouvez pas sélectionner plus de 10 projets', 'warning');
@@ -207,65 +183,51 @@ export class ListeDesChoixComponent implements OnInit {
       this.showNotification('Ce projet est déjà dans votre liste de choix', 'warning');
       return;
     }
-    
-    // Ajout avec priorité = position dans la liste + 1
+
     this.projetSelectionnes.push({
       ...projet,
-      ordre: this.projetSelectionnes.length + 1  // Utilisez "ordre" au lieu de "priorite"
+      ordre: this.projetSelectionnes.length + 1  
     });
     
     this.showNotification(`Projet "${projet.titre}" ajouté à la liste de choix`, 'success');
   }
   
-  /**
-   * Supprime un projet de la liste des choix
-   */
+
   supprimerProjet(index: number): void {
     this.projetSelectionnes.splice(index, 1);
-    
-    // Réajuster les priorités
+
     this.projetSelectionnes.forEach((projet, i) => {
-      projet.ordre = i + 1;  // Utilisez "ordre" au lieu de "priorite"
+      projet.ordre = i + 1;  
     });
     
     this.showNotification('Projet retiré de la liste de choix', 'success');
   }
   
-  /**
-   * Déplace un projet vers le haut dans la liste (augmente la priorité)
-   */
   monterProjet(index: number): void {
     if (index === 0) return;
     
     const temp = this.projetSelectionnes[index];
     this.projetSelectionnes[index] = this.projetSelectionnes[index - 1];
     this.projetSelectionnes[index - 1] = temp;
-    
-    // Réajuster les priorités
+
     this.projetSelectionnes.forEach((projet, i) => {
-      projet.ordre = i + 1;  // Utilisez "ordre" au lieu de "priorite"
+      projet.ordre = i + 1;  
     });
   }
-  
-  /**
-   * Déplace un projet vers le bas dans la liste (diminue la priorité)
-   */
+ 
   descendreProjet(index: number): void {
     if (index === this.projetSelectionnes.length - 1) return;
     
     const temp = this.projetSelectionnes[index];
     this.projetSelectionnes[index] = this.projetSelectionnes[index + 1];
     this.projetSelectionnes[index + 1] = temp;
-    
-    // Réajuster les priorités
+
     this.projetSelectionnes.forEach((projet, i) => {
-      projet.ordre = i + 1;  // Utilisez "ordre" au lieu de "priorite"
+      projet.ordre = i + 1;  
     });
   }
   
-  /**
-   * Enregistre les choix de projets pour le binôme
-   */
+
   validerChoix(): void {
     if (!this.binome) {
       this.showNotification('Veuillez créer un binôme avant de valider vos choix', 'warning');
@@ -276,8 +238,7 @@ export class ListeDesChoixComponent implements OnInit {
       this.showNotification('Veuillez sélectionner au moins un projet', 'warning');
       return;
     }
-    
-    // Préparer les données pour l'API
+
     const choix: ProjetChoixDTO[] = this.projetSelectionnes.map(projet => ({
       idProjet: projet.id,
       priorite: projet.priorite
@@ -285,8 +246,7 @@ export class ListeDesChoixComponent implements OnInit {
     
     
     this.isLoading = true;
-    
-    // S'assurer que binome.id existe avant l'appel
+  
     if (this.binome && this.binome.id !== undefined) {
       this.choixProjetService.enregistrerChoixProjets(this.binome.id, choix)
         .pipe(
@@ -299,7 +259,6 @@ export class ListeDesChoixComponent implements OnInit {
         .subscribe(data => {
           if (data) {
             this.showNotification('Vos choix ont été enregistrés avec succès', 'success');
-            // Réinitialiser le formulaire après validation
             this.resetForm();
           }
         });
@@ -309,9 +268,7 @@ export class ListeDesChoixComponent implements OnInit {
     }
   }
   
-  /**
-   * Réinitialise le formulaire après validation
-   */
+ 
   resetForm(): void {
     this.etudiant1 = {
       id: 0,
@@ -343,9 +300,7 @@ export class ListeDesChoixComponent implements OnInit {
     this.loadAllProjets();
   }
   
-  /**
-   * Filtre les projets selon le texte de recherche
-   */
+ 
   get projetsFiltres(): Projet[] {
     if (!this.searchText) {
       return this.projetsDisponibles;

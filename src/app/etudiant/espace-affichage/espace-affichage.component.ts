@@ -25,9 +25,8 @@ export class EspaceAffichageComponent implements OnInit {
   errorMessage = '';
   isSoutenancePlanned = false;
 
-  // TEST MODE CONFIG
-  private TEST_MODE = true; // CHANGE TO FALSE IN PRODUCTION
-  private TEST_BINOME_ID = 3; // CHANGE THIS TO YOUR TEST BINOME ID
+  private TEST_MODE = true; 
+  private TEST_BINOME_ID = 3; 
 
   constructor(
     private route: ActivatedRoute,

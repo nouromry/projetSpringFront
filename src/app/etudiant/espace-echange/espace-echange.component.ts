@@ -18,17 +18,15 @@ export class EspaceEchangeComponent implements OnInit {
   currentUser: User | null;
 
   // Test user configuration
-  private TEST_MODE = true; // Set to false in production
-  private TEST_USER_ID = 6; // ID of the test user to use
+  private TEST_MODE = false; 
+  private TEST_USER_ID = 3; 
 
   constructor(
     private espaceEchangeService: EchangeEtudiantService,
     private authService: AuthService
   ) {
-    // Get current user from auth service or use test user if TEST_MODE is enabled
     this.currentUser = this.authService.currentUserValue;
     
-    // If TEST_MODE is enabled, use the test user ID instead of the actual user ID
     if (this.TEST_MODE) {
       console.log('🧪 TEST MODE ACTIVE - Using test user ID:', this.TEST_USER_ID);
       this.etudiantId = this.TEST_USER_ID;
@@ -68,45 +66,11 @@ export class EspaceEchangeComponent implements OnInit {
       .subscribe({
         next: (data) => {
           this.comments = this.sortCommentsByDate(data);
-          // Mark unread comments
-          this.markUnreadComments();
+          console.log('✅ Sorted Comments:', this.comments.map(c => c.dateCreation));
         },
         error: (err) => {
           this.errorMessage = 'Erreur lors du chargement des commentaires.';
           console.error('Error loading comments:', err);
-        }
-      });
-  }
-
-  markUnreadComments(): void {
-    // Mark any unread comments when they're loaded
-    this.espaceEchangeService.getUnreadCommentsForEtudiant(this.etudiantId)
-      .subscribe({
-        next: (unreadComments) => {
-          // Optional: Mark these comments somehow in the UI
-          unreadComments.forEach(unread => {
-            const comment = this.comments.find(c => c.id === unread.id);
-            if (comment) {
-              comment.lu = false;
-            }
-          });
-        }
-      });
-  }
-
-  markAsRead(commentId: number): void {
-    this.espaceEchangeService.markCommentAsRead(commentId)
-      .subscribe({
-        next: () => {
-          // Find the comment and mark it as read locally
-          const comment = this.comments.find(c => c.id === commentId);
-          if (comment) {
-            comment.lu = true;
-          }
-        },
-        error: (err) => {
-          this.errorMessage = 'Erreur lors du marquage du commentaire comme lu.';
-          console.error('Error marking comment as read:', err);
         }
       });
   }
@@ -119,27 +83,14 @@ export class EspaceEchangeComponent implements OnInit {
       .pipe(finalize(() => this.isLoading = false))
       .subscribe({
         next: () => {
-          // Success - reload comments and clear form
-          this.loadComments();
           this.newComment = '';
+          this.loadComments(); 
         },
         error: (err) => {
           this.errorMessage = 'Erreur lors de l\'envoi du commentaire.';
           console.error('Error posting comment:', err);
         }
       });
-  }
-
-  getEnseignantName(): string {
-    if (!this.projet) return 'Non assigné';
-    return `${this.projet.encadrantPrenom} ${this.projet.encadrantNom}`;
-  }
-
-  getBinomeNames(): string {
-    if (!this.projet || !this.projet.binome) return 'Pas de binôme';
-    
-    return `${this.projet.binome.etudiant1Prenom} ${this.projet.binome.etudiant1Nom} et 
-            ${this.projet.binome.etudiant2Prenom} ${this.projet.binome.etudiant2Nom}`;
   }
 
   getProjectState(): string {
@@ -149,11 +100,7 @@ export class EspaceEchangeComponent implements OnInit {
 
   private sortCommentsByDate(comments: CommentaireDTO[]): CommentaireDTO[] {
     return [...comments].sort((a, b) => {
-      return new Date(b.dateCreation).getTime() - new Date(a.dateCreation).getTime();
+      return new Date(a.dateCreation).getTime() - new Date(b.dateCreation).getTime(); // ascending
     });
-  }
-
-  get displayedComments(): CommentaireDTO[] {
-    return this.comments;
   }
 }

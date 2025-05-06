@@ -1,176 +1,121 @@
-
 <div class="espace-echange-container">
-    <!-- Header -->
-    <div class="header">
-      <h1 class="title">Espace d'Échange Étudiant</h1>
-      <div class="user-info" *ngIf="currentUser">
-        <span class="user-name"
-          >{{ currentUser.prenom }} {{ currentUser.nom }}</span
-        >
-        <span class="user-role">Étudiant</span>
-      </div>
-    </div>
-  
-    <!-- Main Content -->
-    <div class="main-content">
-      <!-- Project Info Sidebar -->
-      <div class="projects-sidebar">
-        <div class="sidebar-header">
-          <h2>Mon Projet</h2>
-        </div>
-  
-        <div class="project-details" *ngIf="projet">
-          <div class="project-item active">
-            <div class="project-title">{{ projet.titre }}</div>
-            <div class="project-meta">
-              <span class="project-state">{{ getProjectState() }}</span>
-              <span class="project-date" *ngIf="projet.dateDepot">
-                {{ projet.dateDepot | date : "dd/MM/yyyy" }}
-              </span>
-            </div>
-          </div>
-  
-          <div class="project-description">
-            <h3>Description</h3>
-            <p>{{ projet.description }}</p>
-          </div>
-  
-          <div class="project-encadrant">
-            <h3>Enseignant encadrant</h3>
-            <p>
-              <i class="fas fa-chalkboard-teacher"></i> {{ getEnseignantName() }}
-            </p>
-          </div>
-  
-          <div class="project-binome">
-            <h3>Binôme</h3>
-            <p><i class="fas fa-user-graduate"></i> {{ getBinomeNames() }}</p>
-          </div>
-  
-          <div class="project-dates" *ngIf="projet.dateDepot">
-            <h3>Dates importantes</h3>
-            <p>
-              <i class="fas fa-calendar-alt"></i> Dépôt:
-              {{ projet.dateDepot | date : "dd/MM/yyyy" }}
-            </p>
-            <p *ngIf="projet.dateSoutenance">
-              <i class="fas fa-calendar-check"></i> Soutenance:
-              {{ projet.dateSoutenance | date : "dd/MM/yyyy" }}
-            </p>
-          </div>
-        </div>
-  
-        <div class="loading-project" *ngIf="isLoading && !projet">
-          <i class="fas fa-spinner fa-spin"></i> Chargement du projet...
-        </div>
-  
-        <div class="no-project" *ngIf="!isLoading && !projet">
-          <i class="fas fa-exclamation-triangle"></i>
-          <p>Aucun projet n'est affecté à votre binôme.</p>
-          <p>Veuillez contacter votre responsable de formation.</p>
-        </div>
-      </div>
-  
-      <!-- Discussion Area -->
-      <div class="discussion-area" *ngIf="projet">
-        <div class="discussion-header">
-          <h2>{{ projet.titre }}</h2>
-          <div class="project-info">
-            <span class="info-item">
-              <i class="fas fa-user-graduate"></i>
-              Binôme: {{ getBinomeNames() }}
-            </span>
-            <span class="info-item" *ngIf="projet.dateDepot">
-              <i class="fas fa-calendar-alt"></i>
-              Dépôt: {{ projet.dateDepot | date : "dd/MM/yyyy" }}
-            </span>
-          </div>
-        </div>
-  
-        <div class="comments-section">
-          <div
-            *ngIf="isLoading && comments.length === 0"
-            class="loading-indicator"
-          >
-            <i class="fas fa-spinner fa-spin"></i> Chargement des commentaires...
-          </div>
-  
-          <div *ngIf="!isLoading && comments.length === 0" class="no-comments">
-            Aucun commentaire pour ce projet. Soyez le premier à commenter !
-          </div>
-  
-          <div class="comments-list">
-            <div
-              *ngFor="let comment of displayedComments"
-              class="comment-item"
-              [ngClass]="{ unread: !comment.lu }"
-            >
-              <div class="comment-avatar">
-                <i
-                  class="fas"
-                  [ngClass]="{
-                    'fa-user-graduate': comment.etudiantId !== projet.encadrantId,
-                    'fa-chalkboard-teacher':
-                      comment.etudiantId === projet.encadrantId
-                  }"
-                ></i>
-              </div>
-              <div class="comment-content">
-                <div class="comment-header">
-                  <span class="comment-author"
-                    >{{ comment.etudiantPrenom }} {{ comment.etudiantNom }}</span
-                  >
-                  <span class="comment-date">{{
-                    comment.dateCreation | date : "dd/MM/yyyy à HH:mm"
-                  }}</span>
-                </div>
-                <div class="comment-text">{{ comment.contenu }}</div>
-                <button
-                  *ngIf="!comment.lu && comment.etudiantId !== etudiantId"
-                  class="mark-read-btn"
-                  (click)="markAsRead(comment.id)"
-                >
-                  Marquer comme lu
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-  
-        <!-- New Comment Form -->
-        <div class="new-comment">
-          <textarea
-            [(ngModel)]="newComment"
-            placeholder="Écrivez votre commentaire ici..."
-            [disabled]="isLoading"
-          ></textarea>
-          <button
-            (click)="postComment()"
-            [disabled]="!newComment.trim() || isLoading"
-            class="send-button"
-          >
-            <span *ngIf="!isLoading">Envoyer</span>
-            <i *ngIf="isLoading" class="fas fa-spinner fa-spin"></i>
-          </button>
-        </div>
-      </div>
-  
-      <!-- Empty State -->
-      <div *ngIf="!projet && !isLoading" class="empty-state">
-        <i class="fas fa-project-diagram"></i>
-        <h3>Aucun projet affecté</h3>
-        <p>
-          Votre binôme n'a pas encore de projet affecté. Veuillez contacter votre
-          responsable de formation.
-        </p>
-      </div>
-    </div>
-  
-    <!-- Error Message -->
-    <div *ngIf="errorMessage" class="error-message">
-      {{ errorMessage }}
-      <button (click)="errorMessage = ''" class="close-button">
-        <i class="fas fa-times"></i>
-      </button>
+  <!-- Header -->
+  <div class="header">
+    <h1 class="title">Espace d'Échange Étudiant</h1>
+    <div class="user-info" *ngIf="currentUser">
+      <span class="user-name">{{ currentUser.prenom }} {{ currentUser.nom }}</span>
+      <span class="user-role">Étudiant</span>
     </div>
   </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <!-- Project Info Sidebar -->
+    <div class="projects-sidebar">
+      <div class="sidebar-header">
+        <h2>Mon Projet</h2>
+      </div>
+
+      <div class="project-details" *ngIf="projet">
+        <div class="project-item active">
+          <div class="project-title">{{ projet.titre }}</div>
+          <div class="project-meta">
+            <span class="project-state">{{ getProjectState() }}</span>
+            <span class="project-date" *ngIf="projet.dateDepot">
+              {{ projet.dateDepot | date : "dd/MM/yyyy" }}
+            </span>
+          </div>
+        </div>
+
+        <div class="project-description">
+          <h3>Description</h3>
+          <p>{{ projet.description }}</p>
+        </div>
+
+        <div class="project-dates" *ngIf="projet.dateDepot">
+          <h3>Dates importantes</h3>
+          <p>
+            <i class="fas fa-calendar-alt"></i> Dépôt:
+            {{ projet.dateDepot | date : "dd/MM/yyyy" }}
+          </p>
+          <p *ngIf="projet.dateSoutenance">
+            <i class="fas fa-calendar-check"></i> Soutenance:
+            {{ projet.dateSoutenance | date : "dd/MM/yyyy" }}
+          </p>
+        </div>
+      </div>
+
+      <div class="loading-project" *ngIf="isLoading && !projet">
+        <i class="fas fa-spinner fa-spin"></i> Chargement du projet...
+      </div>
+
+      <div class="no-project" *ngIf="!isLoading && !projet">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>Aucun projet n'est affecté.</p>
+      </div>
+    </div>
+
+    <!-- Discussion Area -->
+    <div class="discussion-area" *ngIf="projet">
+      <div class="discussion-header">
+        <h2>{{ projet.titre }}</h2>
+      </div>
+
+      <div class="comments-section">
+        <div *ngIf="isLoading && comments.length === 0" class="loading-indicator">
+          <i class="fas fa-spinner fa-spin"></i> Chargement des commentaires...
+        </div>
+
+        <div *ngIf="!isLoading && comments.length === 0" class="no-comments">
+          Aucun commentaire pour ce projet. Soyez le premier à commenter !
+        </div>
+
+        <div class="comments-list">
+          <div *ngFor="let comment of comments" class="comment-item">
+            <div class="comment-avatar">
+              <i class="fas fa-user"></i>
+            </div>
+            <div class="comment-content">
+              <div class="comment-header">
+                <span class="comment-author">{{ comment.etudiantPrenom }} {{ comment.etudiantNom }}</span>
+                <span class="comment-date">{{ comment.dateCreation | date : "dd/MM/yyyy à HH:mm" }}</span>
+              </div>
+              <div class="comment-text">{{ comment.contenu }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- New Comment Form -->
+      <div class="new-comment">
+        <textarea
+          [(ngModel)]="newComment"
+          placeholder="Écrivez votre commentaire ici..."
+          [disabled]="isLoading"
+        ></textarea>
+        <button
+          (click)="postComment()"
+          [disabled]="!newComment.trim() || isLoading"
+          class="send-button"
+        >
+          <span *ngIf="!isLoading">Envoyer</span>
+          <i *ngIf="isLoading" class="fas fa-spinner fa-spin"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!projet && !isLoading" class="empty-state">
+      <i class="fas fa-project-diagram"></i>
+      <h3>Aucun projet affecté</h3>
+    </div>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+    <button (click)="errorMessage = ''" class="close-button">
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+</div>

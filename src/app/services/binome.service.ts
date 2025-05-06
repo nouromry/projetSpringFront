@@ -8,6 +8,7 @@ import { ProjetDTO } from 'src/app/models/ProjetDTO.model';
 import { ProjetChoixDTO } from 'src/app/models/ProjetChoixDTO.model';
 import { Projet } from '../models/projet.model';
 export interface BinomeDTO {
+  id: number;
   prenomEtud1: string;
   nomEtud1: string;
   prenomEtud2: string;
@@ -15,9 +16,29 @@ export interface BinomeDTO {
   filiere: string;
   groupe: string;
   moyenneEtud1: number;
+  moyenneEtud2: number;
   moyenneBinome: number;
   projetsChoisis: string[];
+  projetAffecte?: Projet;
 }
+
+export interface BinomeDTO1 {
+  id: number;
+  prenomEtud1: string;
+  nomEtud1: string;
+  prenomEtud2: string;
+  nomEtud2: string;
+  filiere: string;
+  groupe: string;
+  moyenneEtud1: number;
+  moyenneEtud2: number;
+  moyenneBinome: number;
+  projetsChoisis: string[];
+  projetAffecte?: Projet; 
+}
+
+  // Import the service
+
 @Injectable({
   providedIn: 'root'
 })
@@ -33,7 +54,7 @@ export class BinomeService {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
       }),
-      withCredentials: true // For CORS with credentials
+      withCredentials: true 
     };
   }
   getBinomeDetails(): Observable<BinomeDTO[]> {
@@ -47,7 +68,7 @@ export class BinomeService {
     );
   }
 
-  // Get a specific binome by ID
+  
   getBinomeById(id: number): Observable<Binome> {
     return this.http.get<Binome>(`${this.apiUrl}/${id}`, this.getHttpOptions()).pipe(
       tap(binome => console.log('Binome fetched:', binome)),
@@ -55,7 +76,6 @@ export class BinomeService {
     );
   }
 
-  // Create a new binome
   creerBinome(matriculeEtud1: string, matriculeEtud2: string): Observable<Binome> {
     return this.http.post<Binome>(`${this.apiUrl}/creer-binome`, {
       matriculeEtud1,
@@ -66,7 +86,6 @@ export class BinomeService {
     );
   }
 
-  // Update an existing binome
   updateBinome(binome: Binome): Observable<Binome> {
     return this.http.put<Binome>(`${this.apiUrl}/${binome.id}`, binome, this.getHttpOptions()).pipe(
       tap(updatedBinome => console.log('Binome updated:', updatedBinome)),
@@ -74,7 +93,6 @@ export class BinomeService {
     );
   }
 
-  // Delete a binome
   deleteBinome(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`, this.getHttpOptions()).pipe(
       tap(() => console.log('Binome deleted:', id)),
@@ -82,7 +100,6 @@ export class BinomeService {
     );
   }
 
-  // Get binomes without a soutenance
   getBinomesWithoutSoutenance(): Observable<Binome[]> {
     return this.http.get<Binome[]>(`${this.apiUrl}/without-soutenance`, this.getHttpOptions()).pipe(
       tap(binomes => console.log('Binomes without soutenance:', binomes.length)),
@@ -90,7 +107,6 @@ export class BinomeService {
     );
   }
 
-  // Get binome ID for current user
   getBinomeIdForCurrentUser(): Observable<number> {
     return this.http.get<number>(`${this.apiUrl}/current-user-binome`, this.getHttpOptions()).pipe(
       tap(binomeId => console.log('Current user binome ID:', binomeId)),
@@ -98,7 +114,6 @@ export class BinomeService {
     );
   }
 
-  // Get available projects
   getProjetsDisponibles(): Observable<ProjetDTO[]> {
     return this.http.get<ProjetDTO[]>(`${this.apiUrl}/projets-disponibles`, this.getHttpOptions()).pipe(
       tap(projets => console.log('Available projects fetched:', projets.length)),
@@ -106,9 +121,6 @@ export class BinomeService {
     );
   }
 
-  /**
-   * Get available projects filtered by filiere
-   */
   getProjetsByFiliere(filiere: string): Observable<ProjetDTO[]> {
     return this.http.get<ProjetDTO[]>(
       `${this.apiUrl}/projets-disponibles?filiere=${filiere}`, 
@@ -119,9 +131,7 @@ export class BinomeService {
     );
   }
 
-  /**
-   * Register project choices for a binome
-   */
+  
   enregistrerChoixProjets(binomeId: number, choix: ProjetChoixDTO[]): Observable<any> {
     return this.http.post<any>(
       `${this.apiUrl}/binome/${binomeId}/choix`, 
@@ -133,9 +143,7 @@ export class BinomeService {
     );
   }
 
-  /**
-   * Get project choices for a binome
-   */
+ 
   getChoixProjetsByBinome(binomeId: number): Observable<ProjetChoixDTO[]> {
     return this.http.get<ProjetChoixDTO[]>(
       `${this.apiUrl}/binome/${binomeId}/choix`, 
@@ -146,10 +154,7 @@ export class BinomeService {
     );
   }
 
-  /**
-   * Get assigned project by binome ID
-   * This function only loads the project, not the soutenance
-   */
+ 
   getProjetByBinomeId(binomeId: number): Observable<Projet> {
     return this.http.get<Projet>(
       `${this.apiUrl}/${binomeId}/projet`, 
@@ -160,15 +165,12 @@ export class BinomeService {
     );
   }
 
-  // Error handling
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'Une erreur inconnue est survenue';
     
     if (error.error instanceof ErrorEvent) {
-      // Client-side error
       errorMessage = `Erreur: ${error.error.message}`;
     } else {
-      // Server-side error
       if (error.status === 0) {
         errorMessage = 'Impossible de se connecter au serveur. Veuillez vérifier votre connexion réseau.';
       } else if (error.status === 400) {

@@ -17,7 +17,6 @@ import {
   styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent {
-  // Make icons available to template
   CalendarDays = CalendarDays;
   Briefcase = Briefcase;
   BarChart4 = BarChart4;
@@ -28,11 +27,10 @@ export class SidebarComponent {
   constructor(private router: Router) {}
 
   logout() {
-    // Your logout logic here
     console.log('Logging out...');
     this.router.navigate(['/login']);
   }
-  activeItem: string = 'projects'; // Default active item
+  activeItem: string = 'projects'; 
 
   setActive(item: string) {
     this.activeItem = item;

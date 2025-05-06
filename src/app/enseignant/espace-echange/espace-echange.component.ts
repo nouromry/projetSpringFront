@@ -120,7 +120,6 @@ export class EspaceEchangeComponent implements OnInit {
     });
   }
 
-  // Add this method for search functionality
   filterProjects(): void {
     if (!this.searchTerm) {
       this.filteredProjets = [...this.projets];

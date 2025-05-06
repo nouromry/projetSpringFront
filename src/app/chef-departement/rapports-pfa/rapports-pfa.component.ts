@@ -13,7 +13,6 @@ export class RapportsPfaComponent implements OnInit {
   filteredDocuments: Document[] = [];
   selectedFilter = 'tous';
   sharedDocument: Document | null = null;
-  // Add these missing properties
   documentDetails: DocumentDetailsDTO | null = null;
   loading = false;
   error: string | null = null;
@@ -107,7 +106,6 @@ export class RapportsPfaComponent implements OnInit {
     this.error = null;
     this.documentDetails = null;
     
-    // Get detailed information about the document
     this.documentService.getDocumentDetails(document.id).subscribe({
       next: (details) => {
         this.documentDetails = details;
@@ -133,7 +131,6 @@ export class RapportsPfaComponent implements OnInit {
         next: (response) => {
           this.loading = false;
   
-          // Get filename from the Content-Disposition header or use a default
           let filename = 'document.pdf';
           const contentDisposition = response.headers.get('Content-Disposition');
           if (contentDisposition) {

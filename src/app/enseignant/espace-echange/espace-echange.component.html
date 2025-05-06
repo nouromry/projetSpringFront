@@ -1,5 +1,4 @@
 <div class="espace-echange-container">
-  <!-- Header -->
   <div class="header">
     <h1 class="title">Espace d'Échange Pédagogique</h1>
     <div class="user-info">
@@ -8,9 +7,7 @@
     </div>
   </div>
 
-  <!-- Main Content -->
   <div class="main-content">
-    <!-- Projects Sidebar -->
     <div class="projects-sidebar">
       <div class="sidebar-header">
         <h2>Mes Projets Encadrés</h2>
@@ -39,7 +36,6 @@
       </div>
     </div>
 
-    <!-- Discussion Area -->
     <div class="discussion-area" *ngIf="selectedProjet">
       <div class="discussion-header">
         <h2>{{ selectedProjet.titre }}</h2>
@@ -82,7 +78,6 @@
         </div>
       </div>
 
-      <!-- New Comment Form -->
       <div class="new-comment">
         <textarea [(ngModel)]="newComment" 
                   placeholder="Écrivez votre commentaire ici..." 
@@ -96,7 +91,7 @@
       </div>
     </div>
 
-    <!-- Empty State -->
+    
     <div *ngIf="!selectedProjet && !isLoading" class="empty-state">
       <i class="fas fa-comments"></i>
       <h3>Sélectionnez un projet pour voir les échanges</h3>

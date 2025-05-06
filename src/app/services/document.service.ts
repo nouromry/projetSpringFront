@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core';
-import { HttpClient,HttpResponse } from '@angular/common/http';
+
 import { Observable } from 'rxjs';
 import { Document } from 'src/app/models/document.model';
 import { DocumentDetailsDTO } from 'src/app/models/document-details.dto';
-
+import { HttpClient, HttpEvent, HttpRequest ,HttpResponse} from '@angular/common/http';
 @Injectable({
   providedIn: 'root'
 })
 export class DocumentService {
-  private apiUrl = 'http://localhost:8081/api/documents'; // Update with your backend URL
+  private apiUrl = 'http://localhost:8081/api/documents'; 
 
   constructor(private http: HttpClient) { }
 
@@ -20,7 +20,6 @@ export class DocumentService {
     return this.http.get<Document>(`${this.apiUrl}/${id}`);
   }
 
-  // New method to get document details using the new endpoint
   getDocumentDetails(id: number): Observable<DocumentDetailsDTO> {
     return this.http.get<DocumentDetailsDTO>(`${this.apiUrl}/${id}/details`);
   }
@@ -42,5 +41,26 @@ export class DocumentService {
       observe: 'response'
     });
   }
+ 
+  getDocumentsByEtudiantId(etudiantId: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/etudiant/${etudiantId}`);
+  }
 
+  
+  uploadDocument(formData: FormData): Observable<HttpEvent<any>> {
+    const req = new HttpRequest('POST', `${this.apiUrl}/upload`, formData, {
+      reportProgress: true,
+    });
+    return this.http.request(req);
+  }
+
+ 
+  getDownloadUrl(documentId: number, etudiantId: number): string {
+    return `${this.apiUrl}/download/${documentId}/${etudiantId}`;
+  }
+
+
+  deleteDocumentEtud(documentId: number, etudiantId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/documents/${documentId}/${etudiantId}`);
+}
 }

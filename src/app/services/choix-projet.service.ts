@@ -17,7 +17,7 @@ export interface BinomeCreationDTO {
   providedIn: 'root'
 })
 export class ChoixProjetService {
-  private apiUrl = 'http://localhost:8081/api/choix-projets'; // Adjust this URL based on your backend configuration
+  private apiUrl = 'http://localhost:8081/api/choix-projets'; 
 
   constructor(private http: HttpClient) { }
 

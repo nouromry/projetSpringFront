@@ -46,7 +46,6 @@ export class AuthService {
       );
   }
   logout(): void {
-    // Remove user from local storage
     localStorage.removeItem('currentUser');
     this.currentUserSubject.next(null);
     this.router.navigate(['/login']);
@@ -60,7 +59,6 @@ export class AuthService {
     return this.currentUserValue ? this.currentUserValue.role : null;
   }
   getUserBinomeId(): number | null {
-    // Check if user exists, is a student, and return binomeId if available
     if (this.currentUserValue && 
         this.currentUserValue.role === 'etudiant' && 
         this.currentUserValue.binomeId) {

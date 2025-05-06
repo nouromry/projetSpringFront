@@ -1,1 +1,116 @@
-<p>documents works!</p>
+
+<div class="documents-container">
+    <h2 class="section-title">Gestion des Documents</h2>
+  
+    <!-- Error & Success Messages -->
+    <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show" role="alert">
+      {{ errorMessage }}
+      <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+    </div>
+    <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+      {{ successMessage }}
+      <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+    </div>
+  
+    <!-- Upload Form -->
+    <div class="card mb-4" >
+      <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Déposer un nouveau document</h5>
+      </div>
+      <div class="card-body">
+        <form (submit)="uploadDocument()" class="row g-3">
+          <div class="col-md-6">
+            <label for="documentTitle" class="form-label">Titre du document</label> <BR>
+            <input type="text" class="form-control" id="documentTitle" [(ngModel)]="documentTitle" name="documentTitle" required>
+          </div>
+          <div class="col-md-6">
+            <label for="documentType" class="form-label">Type de document</label><BR>
+            <select class="form-select" id="documentType" [(ngModel)]="documentType" name="documentType" required>
+              <option value="normal">Document Normal</option>
+              <option value="rapport_final">Rapport Final</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label for="documentFile" class="form-label">Fichier</label><BR>
+            <input type="file" class="form-control" id="documentFile" (change)="onFileSelect($event)" required>
+          </div>
+          
+          <!-- Progress bar for upload -->
+          <div class="col-12" *ngIf="uploading">
+            <div class="progress">
+              <div class="progress-bar progress-bar-striped progress-bar-animated" 
+                   [style.width.%]="uploadProgress" 
+                   role="progressbar" 
+                   [attr.aria-valuenow]="uploadProgress" 
+                   aria-valuemin="0" 
+                   aria-valuemax="100">
+                {{ uploadProgress }}%
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-12">
+            <button type="submit" class="btn btn-primary" [disabled]="uploading">
+              <i class="bi bi-upload me-1"></i> Déposer le document
+            </button>
+            <button type="button" class="btn btn-secondary ms-2" (click)="resetForm()" [disabled]="uploading">
+              <i class="bi bi-x-circle me-1"></i> Annuler
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  
+   
+  
+   <!-- Documents List -->
+<div class="card shadow-sm mt-4">
+    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+      <h1 class="mb-0">
+        <i class="bi bi-file-earmark-text me-2"></i> Mes Documents
+      </h1>
+    </div>
+    <div class="card-body">
+  
+      <!-- Loading -->
+      <div class="text-center my-4" *ngIf="loading">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="mt-2">Chargement des documents...</p>
+      </div>
+  
+      <!-- Empty -->
+      <div class="alert alert-info" *ngIf="!loading && documents.length === 0">
+        <i class="bi bi-info-circle me-2"></i>
+        Aucun document disponible pour votre binôme.
+      </div>
+  
+      <!-- Documents Grid -->
+      <div class="row g-3" *ngIf="!loading && documents.length > 0">
+        <div class="col-md-6 col-lg-4" *ngFor="let doc of documents">
+          <div class="card h-100 shadow-sm border-0">
+            <div class="card-body d-flex flex-column justify-content-between">
+              <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-file-earmark-pdf-fill text-danger fs-3 me-3"></i>
+                <div>
+                  <h6 class="mb-0">{{ doc.titre }}</h6>
+                  <small class="text-muted">{{ doc.dateDepot}}</small>
+                </div>
+              </div>
+              <div class="mt-auto d-flex justify-content-between align-items-center">
+                <span class="badge" [ngClass]="doc.type === 'rapport_final' ? 'bg-danger' : 'bg-primary'">
+                  {{ getDocumentTypeLabel(doc.type) }}
+                </span>
+                <button class="btn btn-outline-primary btn-sm" (click)="downloadDocument(doc)">
+                  <i class="bi bi-download"></i> Télécharger
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+    </div>
+  </div>
+</div>

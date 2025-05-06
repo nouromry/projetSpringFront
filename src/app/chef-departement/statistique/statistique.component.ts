@@ -5,7 +5,6 @@ import { BinomeService } from 'src/app/services/binome.service';
 import { DocumentService } from 'src/app/services/document.service';
 import { Chart, registerables } from 'chart.js';
 
-// Register Chart.js components
 Chart.register(...registerables);
 
 @Component({
@@ -14,19 +13,16 @@ Chart.register(...registerables);
   styleUrls: ['./statistique.component.css']
 })
 export class StatistiqueComponent implements OnInit, AfterViewInit {
-  // Chart references
   @ViewChild('projetStatusChart') projetStatusChartRef!: ElementRef;
   @ViewChild('enseignantProjetChart') enseignantProjetChartRef!: ElementRef;
   @ViewChild('filiereDistributionChart') filiereDistributionChartRef!: ElementRef;
   @ViewChild('moyenneBinomeChart') moyenneBinomeChartRef!: ElementRef;
 
-  // Data variables
   projetsParEtat: { [key: string]: number } = {};
   projetsParEnseignant: { enseignant: string, count: number }[] = [];
   projetsParFiliere: { [key: string]: number } = {};
   binomesParMoyenne: { binome: string, moyenne: number }[] = [];
 
-  // Summary statistics
   totalProjets: number = 0;
   totalEnseignants: number = 0;
   totalBinomes: number = 0;
@@ -34,7 +30,6 @@ export class StatistiqueComponent implements OnInit, AfterViewInit {
   moyenneGenerale: number = 0;
   tauxValidation: number = 0;
 
-  // Loading states
   isLoading: boolean = true;
   chartsInitialized: boolean = false;
 
@@ -56,27 +51,22 @@ export class StatistiqueComponent implements OnInit, AfterViewInit {
   }
 
   loadAllData(): void {
-    // Load projects data
     this.projetService.getAllProjets().subscribe({
       next: (projets) => {
         this.totalProjets = projets.length;
         
-        // Calculate project status distribution
         projets.forEach(projet => {
           this.projetsParEtat[projet.etat] = (this.projetsParEtat[projet.etat] || 0) + 1;
           this.projetsParFiliere[projet.filiere] = (this.projetsParFiliere[projet.filiere] || 0) + 1;
         });
 
-        // Calculate validation rate
         const validated = projets.filter(p => p.etat === 'VALIDE').length;
         this.tauxValidation = Math.round((validated / this.totalProjets) * 100);
 
-        // Load teachers data
         this.enseignantService.getAllEnseignants().subscribe({
           next: (enseignants) => {
             this.totalEnseignants = enseignants.length;
             
-            // Count projects per teacher
             enseignants.forEach(enseignant => {
               this.enseignantService.getEnseignantProjects(enseignant.id).subscribe({
                 next: (projects) => {
@@ -85,7 +75,6 @@ export class StatistiqueComponent implements OnInit, AfterViewInit {
                     count: projects.length
                   });
 
-                  // When all teachers are processed
                   if (this.projetsParEnseignant.length === enseignants.length) {
                     this.projetsParEnseignant.sort((a, b) => b.count - a.count);
                     this.projetsParEnseignant = this.projetsParEnseignant.slice(0, 10);
@@ -95,7 +84,7 @@ export class StatistiqueComponent implements OnInit, AfterViewInit {
               });
             });
 
-            // Load binomes data
+            
             this.binomeService.getBinomeDetails().subscribe({
               next: (binomes) => {
                 this.totalBinomes = binomes.length;
@@ -110,23 +99,19 @@ export class StatistiqueComponent implements OnInit, AfterViewInit {
                   }
                 });
 
-                // Sort by average and take top 10
                 this.binomesParMoyenne.sort((a, b) => b.moyenne - a.moyenne);
                 this.binomesParMoyenne = this.binomesParMoyenne.slice(0, 10);
 
-                // Calculate general average
                 if (this.binomesParMoyenne.length > 0) {
                   const total = this.binomesParMoyenne.reduce((sum, b) => sum + b.moyenne, 0);
                   this.moyenneGenerale = total / this.binomesParMoyenne.length;
                 }
 
-                // Load documents data
                 this.documentService.getAllDocuments().subscribe({
                   next: (documents) => {
                     this.totalDocuments = documents.length;
                     this.isLoading = false;
                     
-                    // Initialize charts after data is loaded
                     setTimeout(() => {
                       this.initializeCharts();
                       this.chartsInitialized = true;
